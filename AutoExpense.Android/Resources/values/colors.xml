@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<color name="colorPrimary">#7569FF</color>
+	<color name="colorPrimaryDark">#2E3148</color>
+	<color name="colorAccent">#ac97ff</color>
+
+	<color name="colorSecondary">#D869FF</color>
+	<color name="colorGreen">#82F080</color>
+	<color name="colorPink">#EB789C</color>
+	<color name="colorCardBackGround">#1B1D2F</color>
+	<color name="colorMainBackGround">#2E3148</color>
+
+	<color name="colorGray">#60708F</color>
+	<color name="colorWhiteGray">#B1BED8</color>
+
+</resources>
