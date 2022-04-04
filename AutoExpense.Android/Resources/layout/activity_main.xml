@@ -26,7 +26,7 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:orientation="horizontal"
-		app:layout_constraintGuide_percent="0.05"/>
+		app:layout_constraintGuide_percent="0.025"/>
 
 	<View
 		android:layout_width="match_parent"
@@ -35,26 +35,37 @@
 		app:layout_constraintTop_toTopOf="parent"
 		app:layout_constraintHeight_percent=".6"/>
 
-	<ImageView
-		android:id="@+id/profile_pic_imageView"
-		android:layout_width="50dp"
-		android:layout_height="50dp"
+
+
+	<FrameLayout
+		android:id="@+id/frameLayout"
 		app:layout_constraintTop_toBottomOf="@id/top_guideline"
 		app:layout_constraintLeft_toRightOf="@id/left_guideline"
-		android:src="@drawable/headshot"
-		android:padding="0.5dp"/>
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content">
+		<ImageView
+			android:id="@+id/profile_pic_imageView"
+			android:layout_width="100dp"
+			android:layout_height="100dp"
+			android:src="@drawable/headshot"
+			android:padding="6dp"/>
+		<ImageView
+			android:src="@drawable/rounded_frame"
+			android:layout_width="100dp"
+			android:layout_height="100dp" />
+	</FrameLayout>
 
 	<TextView
 		android:id="@+id/time_of_day_textView"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		app:layout_constraintStart_toEndOf="@+id/profile_pic_imageView"
-		app:layout_constraintTop_toTopOf="@id/profile_pic_imageView"
+		app:layout_constraintStart_toEndOf="@+id/frameLayout"
+		app:layout_constraintTop_toTopOf="@id/frameLayout"
 		tools:text="Good Morning"
 		android:layout_marginLeft="@dimen/margin_padding_size_small"
 		android:textColor="@color/colorGray"
 		android:fontFamily="@font/poppins"
-		android:textSize="@dimen/text_size_small"/>
+		android:textSize="@dimen/text_size_medium"/>
 
 	<TextView
 		android:id="@+id/name_textView"
@@ -67,11 +78,20 @@
 		android:fontFamily="@font/poppins_semibold"
 		android:textSize="@dimen/text_size_medium"/>
 
+	<ImageView
+		android:id="@+id/settings_imageView"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:src="@drawable/ic_settings"
+		app:layout_constraintBottom_toBottomOf="@+id/frameLayout"
+		app:layout_constraintEnd_toEndOf="@id/right_guideline"
+		app:layout_constraintTop_toTopOf="@+id/top_guideline" />
+
 	<androidx.cardview.widget.CardView
 		android:id="@+id/status_cardView"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
-		app:layout_constraintTop_toBottomOf="@id/profile_pic_imageView"
+		app:layout_constraintTop_toBottomOf="@id/frameLayout"
 		android:backgroundTint="@color/colorCardBackGround"
 		app:layout_constraintLeft_toRightOf="@id/left_guideline"
 		app:layout_constraintRight_toLeftOf="@id/right_guideline"
@@ -86,7 +106,7 @@
 				android:id="@+id/textView"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:fontFamily="@font/poppins"
+				android:fontFamily="@font/poppins_semibold"
 				android:text="Status"
 				android:textColor="@android:color/white"
 				android:textSize="@dimen/text_size_large"
@@ -100,7 +120,7 @@
 				android:layout_marginTop="@dimen/margin_padding_size_small"
 				android:fontFamily="@font/poppins"
 				android:textSize="@dimen/text_size_small"
-				android:text="Total Messages"
+				android:text="Total Transactions"
 				android:textColor="@android:color/darker_gray"
 				app:layout_constraintStart_toStartOf="@+id/textView"
 				app:layout_constraintTop_toBottomOf="@+id/textView" />
@@ -130,7 +150,7 @@
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:fontFamily="@font/poppins"
-				android:text="Synced Messages"
+				android:text="Synced Transactions"
 				android:textColor="@android:color/darker_gray"
 				android:textSize="@dimen/text_size_small"
 				app:layout_constraintStart_toStartOf="@+id/view"
@@ -321,10 +341,10 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_marginTop="@dimen/margin_padding_size_medium"
-			android:fontFamily="@font/poppins"
+			android:fontFamily="@font/poppins_semibold"
 			android:text="Recent Transactions"
 			android:textColor="@android:color/white"
-			android:textSize="@dimen/text_size_small"
+			android:textSize="@dimen/text_size_large"
 			app:layout_constraintStart_toEndOf="@id/left_inner_guideline"
 			app:layout_constraintTop_toTopOf="parent" />
 
