@@ -12,20 +12,30 @@ using AndroidX.AppCompat.App;
 using AndroidX.AppCompat.Widget;
 using AndroidX.RecyclerView.Widget;
 using AutoExpense.Android.Adapters;
+using AutoExpense.Android.Interfaces;
 using AutoExpense.Android.Models;
+using Google.Android.Material.BottomSheet;
+using Xamarin.Essentials;
+using FragmentTransaction = AndroidX.Fragment.App.FragmentTransaction;
 using Uri=Android.Net.Uri;
 
 
 namespace AutoExpense.Android
 {
     [Activity(Label = "@string/app_name", Theme = "@style/AppTheme", MainLauncher = true)]
-    public class MainActivity : AppCompatActivity
+    public class MainActivity : AppCompatActivity, ISendersManager
     {
         private RecyclerView transactionsRecyclerView;
         private TextView timeOfDayTextView, nameTextView, totalMessagesTextView, syncedMessagesTextView;
-        
+        private Button sendersButton, syncButton;
+        private TransactionsAdapter transactionsAdapter;
+        private BottomSheetDialog bottomSheetDialog;
+        public List<SMS> SelectMessages { get; set; } = new List<SMS>();
+        public List<SMS> messages { get; set; }
+        public List<string> senders { get; set; }
 
-        private List<SMS> MoneyMessages { get; set; }
+        private const string SENDERS_LIST = "SelectSenders";
+        public List<string> SelectSenders { get; set; }=new List<string>();
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -39,25 +49,98 @@ namespace AutoExpense.Android
             nameTextView = FindViewById<TextView>(Resource.Id.name_textView);
             totalMessagesTextView = FindViewById<TextView>(Resource.Id.total_messages_textView);
             syncedMessagesTextView = FindViewById<TextView>(Resource.Id.synced_messages_textView);
+            sendersButton = FindViewById<Button>(Resource.Id.senders_button);
+            syncButton = FindViewById<Button>(Resource.Id.sync_button);
 
             timeOfDayTextView.Text=GetTimeofDay();
 
             RequestPermissions(new string[] { Manifest.Permission.ReadSms }, 0);
 
-            var messages = GetAllSms();
+            LoadMessages();
 
-            MoneyMessages = messages.Where(m => m.Address == "MPESA" || m.Address == "StanChart").ToList();
-            var adapter = new TransactionsAdapter(MoneyMessages);
-            transactionsRecyclerView.SetAdapter(adapter);
+            transactionsAdapter = new TransactionsAdapter(SelectMessages);
+            transactionsRecyclerView.SetAdapter(transactionsAdapter);
 
 
-            totalMessagesTextView.Text = MoneyMessages.Count.ToString();
-            syncedMessagesTextView.Text = "0";
+            UpdateStatusCard(SelectMessages);
             nameTextView.Text = "Josh N.";
+
+            sendersButton.Click += SendersButton_Click;
+        }
+
+        private void LoadMessages()
+        {
+            messages = GetAllSms();
+
+            var sendersString = Preferences.Get(SENDERS_LIST, null);
+            SelectSenders = string.IsNullOrEmpty(sendersString)
+                ? new List<string>()
+                : sendersString.Split(",").Where(s => !string.IsNullOrEmpty(s)).Distinct().ToList();
+
+
+            foreach (var message in messages)
+            {
+                if (SelectSenders.Contains(message.Address))
+                    SelectMessages.Add(message);
+            }
 
         }
 
-        private string? GetTimeofDay()
+        private void UpdateStatusCard(List<SMS> selectMessages)
+        {
+            totalMessagesTextView.Text = SelectMessages.Count.ToString();
+            syncedMessagesTextView.Text = "0";
+        }
+
+
+        private void SendersButton_Click(object sender, EventArgs e)
+        {
+            senders = messages.Where(s => !s.Address.StartsWith("+")).Select(s => s.Address).Distinct().ToList();
+
+            
+            bottomSheetDialog = new BottomSheetDialog(this);
+            bottomSheetDialog.SetContentView(Resource.Layout.dialog_senders);
+
+            var recyclerView = bottomSheetDialog.FindViewById<RecyclerView>(Resource.Id.senders_recyclerView);
+            var cancelButton = bottomSheetDialog.FindViewById<Button>(Resource.Id.cancel_button);
+            var updateButton = bottomSheetDialog.FindViewById<Button>(Resource.Id.update_button);
+
+            var adapter = new SendersAdapter(senders, SelectSenders, this);
+            recyclerView?.SetAdapter(adapter);
+
+            cancelButton.Click += (s, e) => bottomSheetDialog.Dismiss();
+            updateButton.Click += UpdateButton_Click;
+
+            bottomSheetDialog.Show();
+        }
+
+        private void UpdateButton_Click(object sender, EventArgs e)
+        {
+            var sendersString = string.Empty;
+            foreach (var selectSender in SelectSenders)
+            {
+                if(sendersString.Contains(selectSender))
+                    continue;
+
+                sendersString = $"{sendersString},{selectSender}";
+            }
+            Preferences.Set(SENDERS_LIST,sendersString );
+
+            SelectMessages.Clear();
+
+            foreach (var message in messages)
+            {
+                if(SelectSenders.Contains(message.Address))
+                    SelectMessages.Add(message);
+            }
+
+            transactionsAdapter.NotifyDataSetChanged();
+            bottomSheetDialog.Dismiss();
+
+            UpdateStatusCard(SelectMessages);
+        }
+
+        private string GetTimeofDay()
         {
             var greeting = "";
             var hour = DateTime.Now.Hour;
@@ -129,6 +212,16 @@ namespace AutoExpense.Android
             Xamarin.Essentials.Platform.OnRequestPermissionsResult(requestCode, permissions, grantResults);
 
             base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+
+        public void SenderSelected(string sender)
+        {
+            SelectSenders.Add(sender);
+        }
+
+        public void SenderRemoved(string sender)
+        {
+            SelectSenders.Remove(sender);
         }
     }
 }
