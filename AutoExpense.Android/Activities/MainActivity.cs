@@ -9,18 +9,18 @@ using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 using AndroidX.AppCompat.App;
-using AndroidX.AppCompat.Widget;
 using AndroidX.RecyclerView.Widget;
 using AutoExpense.Android.Adapters;
 using AutoExpense.Android.Interfaces;
 using AutoExpense.Android.Models;
+using AutoExpense.Android.Services;
 using Google.Android.Material.BottomSheet;
 using Xamarin.Essentials;
-using FragmentTransaction = AndroidX.Fragment.App.FragmentTransaction;
 using Uri=Android.Net.Uri;
+using static AutoExpense.Android.Helpers.Constants;
 
 
-namespace AutoExpense.Android
+namespace AutoExpense.Android.Activities
 {
     [Activity(Label = "@string/app_name", Theme = "@style/AppTheme", MainLauncher = true)]
     public class MainActivity : AppCompatActivity, ISendersManager
@@ -30,17 +30,18 @@ namespace AutoExpense.Android
         private Button sendersButton, syncButton;
         private TransactionsAdapter transactionsAdapter;
         private BottomSheetDialog bottomSheetDialog;
-        public List<SMS> SelectMessages { get; set; } = new List<SMS>();
+        private ImageView settingsImageView;
         public List<SMS> messages { get; set; }
         public List<string> senders { get; set; }
-
-        private const string SENDERS_LIST = "SelectSenders";
         public List<string> SelectSenders { get; set; }=new List<string>();
+        public List<Transaction> DisplayedTransactions { get; set; } = new List<Transaction>();
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
-            Xamarin.Essentials.Platform.Init(this, savedInstanceState);
+            Platform.Init(this, savedInstanceState);
+            Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("NjA1MjQxQDMyMzAyZTMxMmUzMExxQjBrWW1zcW83ZUQ0UFJ6VTNnOTRQdnRrTUpZOXlFa2VFUGVVdWxhSGs9");
+
             // Set our view from the "main" layout resource
             SetContentView(Resource.Layout.activity_main);
 
@@ -51,6 +52,7 @@ namespace AutoExpense.Android
             syncedMessagesTextView = FindViewById<TextView>(Resource.Id.synced_messages_textView);
             sendersButton = FindViewById<Button>(Resource.Id.senders_button);
             syncButton = FindViewById<Button>(Resource.Id.sync_button);
+            settingsImageView = FindViewById<ImageView>(Resource.Id.settings_imageView);
 
             timeOfDayTextView.Text=GetTimeofDay();
 
@@ -58,14 +60,85 @@ namespace AutoExpense.Android
 
             LoadMessages();
 
-            transactionsAdapter = new TransactionsAdapter(SelectMessages);
+            transactionsAdapter = new TransactionsAdapter(DisplayedTransactions);
             transactionsRecyclerView.SetAdapter(transactionsAdapter);
 
 
-            UpdateStatusCard(SelectMessages);
+            UpdateStatusCard();
             nameTextView.Text = "Josh N.";
 
             sendersButton.Click += SendersButton_Click;
+            settingsImageView.Click += SettingsImageView_Click;
+            syncButton.Click += SyncButton_Click;
+        }
+
+        private void SyncButton_Click(object sender, EventArgs e)
+        {
+            var luisAppId = Preferences.Get(LUIS_APP_ID, null);
+            var luisSubscriptionKey = Preferences.Get(LUIS_SUBBSCRIPTION_KEY, null);
+            var ynabAccessToken = Preferences.Get(YNAB_ACCESS_TOKEN, null);
+            var endpointUrl = Preferences.Get(ENDPOINT_URL, null);
+
+            if (string.IsNullOrEmpty(luisAppId) || string.IsNullOrEmpty(luisSubscriptionKey) ||
+                string.IsNullOrEmpty(ynabAccessToken) || string.IsNullOrEmpty(endpointUrl))
+            {
+                StartActivity(typeof(SettingsActivity));
+                return;
+            }
+
+            SyncTransactions(luisAppId, luisSubscriptionKey, ynabAccessToken, endpointUrl);
+        }
+
+        private async void SyncTransactions(string luisAppId, string luisSubscriptionKey, string ynabAccessToken, string endpointUrl)
+        {
+            var luisPredictionService = new LuisPredictionService(luisAppId, luisSubscriptionKey, endpointUrl);
+            var temps = DisplayedTransactions.Select(d => d).ToList();
+            foreach (var transaction in temps)
+            {
+                var prediction= await luisPredictionService.GetPrediction(transaction.Body);
+                if (prediction is null)
+                {
+                    continue;
+                }
+
+                if (prediction.Prediction.TopIntent == "CashOutflow" || prediction.Prediction.TopIntent == "CashInflow" || prediction.Prediction.TopIntent== "Fuliza")
+                {
+
+                    var transactionType =
+                        (TransactionType) Enum.Parse(typeof(TransactionType), prediction.Prediction.TopIntent);
+
+                    var index = temps.IndexOf(transaction);
+
+                    var stringAmt = prediction.Prediction.Entities.Amount.FirstOrDefault()?.Trim().Remove(0,3);
+
+                    if (prediction.Prediction.Entities.TransactionCost != null)
+                    {
+                        var stringTrCost = prediction.Prediction.Entities.TransactionCost.FirstOrDefault()?.Trim().Remove(0, 3);
+                        DisplayedTransactions[index].TransactionCost = float.Parse(stringTrCost ?? string.Empty);
+                    }
+
+                    DisplayedTransactions[index].Amount = float.Parse(stringAmt ?? string.Empty);
+                    DisplayedTransactions[index].Code = prediction.Prediction.Entities.Code.FirstOrDefault() ?? string.Empty;
+                    DisplayedTransactions[index].Principal = prediction.Prediction.Entities.Principal.FirstOrDefault() ?? string.Empty;
+                    DisplayedTransactions[index].MessageSender = prediction.Prediction.Entities.Principal.FirstOrDefault() ?? string.Empty;
+                    DisplayedTransactions[index].TransactionType = transactionType;
+
+                    transactionsAdapter.NotifyItemChanged(index);
+                }
+
+                else
+                {
+                    continue;
+                }
+
+
+     
+            }
+        }
+
+        private void SettingsImageView_Click(object sender, EventArgs e)
+        {
+           StartActivity(typeof(SettingsActivity));
         }
 
         private void LoadMessages()
@@ -81,14 +154,19 @@ namespace AutoExpense.Android
             foreach (var message in messages)
             {
                 if (SelectSenders.Contains(message.Address))
-                    SelectMessages.Add(message);
+                {
+                    var transaction = new Transaction(message.Address, message.Date, null, null, null, null, null,
+                        message.Body);
+
+                    DisplayedTransactions.Add(transaction);
+                }
             }
 
         }
 
-        private void UpdateStatusCard(List<SMS> selectMessages)
+        private void UpdateStatusCard()
         {
-            totalMessagesTextView.Text = SelectMessages.Count.ToString();
+            totalMessagesTextView.Text = DisplayedTransactions.Count.ToString();
             syncedMessagesTextView.Text = "0";
         }
 
@@ -126,18 +204,28 @@ namespace AutoExpense.Android
             }
             Preferences.Set(SENDERS_LIST,sendersString );
 
-            SelectMessages.Clear();
+            DisplayedTransactions.Clear();
 
             foreach (var message in messages)
             {
-                if(SelectSenders.Contains(message.Address))
-                    SelectMessages.Add(message);
+                if (SelectSenders.Contains(message.Address))
+                {
+                    var transaction = new Transaction(message.Address, message.Date, null, null, null, null, null,
+                        message.Body);
+
+                    DisplayedTransactions.Add(transaction);
+                }
+                else
+                {
+                    continue;
+                }
+
             }
 
             transactionsAdapter.NotifyDataSetChanged();
             bottomSheetDialog.Dismiss();
 
-            UpdateStatusCard(SelectMessages);
+            UpdateStatusCard();
         }
 
         private string GetTimeofDay()

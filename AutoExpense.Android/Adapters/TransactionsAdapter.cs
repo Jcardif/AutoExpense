@@ -8,29 +8,50 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Android.Graphics;
 using Android.Icu.Text;
+using AndroidX.Core.Content;
 using AndroidX.RecyclerView.Widget;
 using AutoExpense.Android.Models;
+using Xamarin.Essentials;
 
 namespace AutoExpense.Android.Adapters
 {
     public class TransactionsAdapter : RecyclerView.Adapter
     {
-        private readonly List<SMS> _messages;
+        private readonly List<Transaction> _transactions;
 
-        public TransactionsAdapter(List<SMS> messages)
+        public TransactionsAdapter(List<Transaction> transactions)
         {
-            _messages = messages;
+            _transactions = transactions;
         }
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
         {
             if (holder is TransactionsViewHolder vh)
             {
-                vh.AddressTextView.Text = _messages[position].Address;
-                vh.DateTimeTextView.Text = new SimpleDateFormat("MMM dd, HH:mm").Format(_messages[position].Date);
+                vh.AddressTextView.Text = _transactions[position].MessageSender;
+                vh.DateTimeTextView.Text = new SimpleDateFormat("MMM dd, HH:mm").Format(_transactions[position].Date);
 
-                // todo : handle sync and amt
+                if (_transactions[position].TransactionType==TransactionType.Fuliza || _transactions[position].TransactionType == TransactionType.CashOutflow)
+                {
+                    vh.AmountTextView.Text = $"- Ksh {_transactions[position].Amount}";
+                    vh.AmountTextView.Visibility = ViewStates.Visible;
+                    vh.AmountTextView.SetTextColor(new Color(ContextCompat.GetColor(Platform.AppContext, Resource.Color.colorPink)));
+                    vh.SyncProblem.Visibility = ViewStates.Invisible;
+                }
+                else if (_transactions[position].TransactionType==TransactionType.CashInflow)
+                {
+                    vh.AmountTextView.Text = $"Ksh {_transactions[position].Amount}";
+                    vh.AmountTextView.Visibility = ViewStates.Visible;
+                    vh.AmountTextView.SetTextColor(new Color(ContextCompat.GetColor(Platform.AppContext, Resource.Color.colorGreen)));
+                    vh.SyncProblem.Visibility = ViewStates.Invisible;
+                }
+                else if (_transactions[position].Amount is null)
+                {
+                    vh.AmountTextView.Visibility = ViewStates.Invisible;
+                    vh.SyncProblem.Visibility = ViewStates.Visible;
+                }
             }
         }
 
@@ -49,7 +70,7 @@ namespace AutoExpense.Android.Adapters
             return holder;
         }
 
-        public override int ItemCount => _messages.Count;
+        public override int ItemCount => _transactions.Count;
     }
 
 

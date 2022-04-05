@@ -46,6 +46,7 @@
     <ImageView
         android:id="@+id/sync_problem_imageView"
         android:layout_width="wrap_content"
+        android:visibility="invisible"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"

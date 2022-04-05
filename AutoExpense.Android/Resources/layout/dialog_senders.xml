@@ -18,7 +18,7 @@
         android:textColor="@android:color/white"
         android:textSize="@dimen/text_size_medium"
         android:fontFamily="@font/poppins"
-        android:background="@color/colorPrimary"
+        android:background="@drawable/primary_color_button_round"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintWidth_percent=".45"/>
