@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Android;
 using Android.App;
@@ -35,12 +36,20 @@ namespace AutoExpense.Android.Activities
         public List<string> senders { get; set; }
         public List<string> SelectSenders { get; set; }=new List<string>();
         public List<Transaction> DisplayedTransactions { get; set; } = new List<Transaction>();
+        public LocalDatabaseService dbService { get; set; }
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
             Platform.Init(this, savedInstanceState);
             Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("NjA1MjQxQDMyMzAyZTMxMmUzMExxQjBrWW1zcW83ZUQ0UFJ6VTNnOTRQdnRrTUpZOXlFa2VFUGVVdWxhSGs9");
+
+            var path = Path.Combine(
+                System.Environment.GetFolderPath(System.Environment.SpecialFolder.LocalApplicationData),
+                "AutoExpense.db3");
+
+            dbService = new LocalDatabaseService(path);
+
 
             // Set our view from the "main" layout resource
             SetContentView(Resource.Layout.activity_main);
@@ -95,6 +104,9 @@ namespace AutoExpense.Android.Activities
             var temps = DisplayedTransactions.Select(d => d).ToList();
             foreach (var transaction in temps)
             {
+                if (transaction.Amount != null)
+                    continue;
+
                 var prediction= await luisPredictionService.GetPrediction(transaction.Body);
                 if (prediction is null)
                 {
@@ -109,7 +121,9 @@ namespace AutoExpense.Android.Activities
 
                     var index = temps.IndexOf(transaction);
 
-                    var stringAmt = prediction.Prediction.Entities.Amount.FirstOrDefault()?.Trim().Remove(0,3);
+                    var stringAmt = prediction.Prediction.Entities.Amount?.FirstOrDefault()?.Trim().Remove(0,3);
+                    if(string.IsNullOrEmpty(stringAmt))
+                        continue;
 
                     if (prediction.Prediction.Entities.TransactionCost != null)
                     {
@@ -117,22 +131,32 @@ namespace AutoExpense.Android.Activities
                         DisplayedTransactions[index].TransactionCost = float.Parse(stringTrCost ?? string.Empty);
                     }
 
+                    var principal = prediction.Prediction.Entities.Principal;
+
+                    if (principal != null)
+                    {
+                        DisplayedTransactions[index].MessageSender = principal.FirstOrDefault() ?? string.Empty;
+                        DisplayedTransactions[index].Principal = prediction.Prediction.Entities.Principal.FirstOrDefault() ?? string.Empty;
+                    }
+
                     DisplayedTransactions[index].Amount = float.Parse(stringAmt ?? string.Empty);
-                    DisplayedTransactions[index].Code = prediction.Prediction.Entities.Code.FirstOrDefault() ?? string.Empty;
-                    DisplayedTransactions[index].Principal = prediction.Prediction.Entities.Principal.FirstOrDefault() ?? string.Empty;
-                    DisplayedTransactions[index].MessageSender = prediction.Prediction.Entities.Principal.FirstOrDefault() ?? string.Empty;
+                    DisplayedTransactions[index].Code = prediction.Prediction.Entities.Code?.FirstOrDefault() ?? string.Empty;
                     DisplayedTransactions[index].TransactionType = transactionType;
 
                     transactionsAdapter.NotifyItemChanged(index);
+
+                    dbService.SaveTransactionPrediction(new TPrediction(transaction.ThreadId, transaction.Id,
+                        transaction.Date,
+                        transaction.MessageSender, transaction.TransactionType, transaction.Amount,
+                        transaction.TransactionCost, transaction.Code, transaction.Principal));
+
+
                 }
 
                 else
                 {
                     continue;
                 }
-
-
-     
             }
         }
 
@@ -155,10 +179,28 @@ namespace AutoExpense.Android.Activities
             {
                 if (SelectSenders.Contains(message.Address))
                 {
-                    var transaction = new Transaction(message.Address, message.Date, null, null, null, null, null,
-                        message.Body);
+                    var tPredictions = dbService.GetTransactionPredictions();
+                    var tPrediction =
+                        tPredictions.FirstOrDefault(t => t.Id == message.Id && t.ThreadId == message.ThreadId);
 
-                    DisplayedTransactions.Add(transaction);
+                    if (tPrediction is null)
+                    {
+                        var transaction = new Transaction(message.Address, message.Date, null, null, null, null, null,
+                            message.Body, message.ThreadId, message.Id);
+                        
+                        DisplayedTransactions.Add(transaction);
+                        continue;
+                    }
+                    else
+                    {
+                        var transaction = new Transaction(tPrediction.MessageSender, message.Date, tPrediction.TransactionType, tPrediction.Amount, tPrediction.TransactionCost, tPrediction.Code, tPrediction.Principal,
+                            message.Body, message.ThreadId, message.Id);
+
+                        DisplayedTransactions.Add(transaction);
+                        continue;
+                    }
+
+
                 }
             }
 
@@ -211,7 +253,7 @@ namespace AutoExpense.Android.Activities
                 if (SelectSenders.Contains(message.Address))
                 {
                     var transaction = new Transaction(message.Address, message.Date, null, null, null, null, null,
-                        message.Body);
+                        message.Body, message.ThreadId, message.Id);
 
                     DisplayedTransactions.Add(transaction);
                 }

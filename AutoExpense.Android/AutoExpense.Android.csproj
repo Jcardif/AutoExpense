@@ -76,9 +76,11 @@
     <Compile Include="Models\AppConfig.cs" />
     <Compile Include="Models\LuisPrediction.cs" />
     <Compile Include="Models\SMS.cs" />
+    <Compile Include="Models\TPrediction.cs" />
     <Compile Include="Models\Transaction.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\LocalDatabaseService.cs" />
     <Compile Include="Services\LuisPredictionService.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -113,6 +115,9 @@
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json">
       <Version>13.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="sqlite-net-pcl">
+      <Version>1.8.116</Version>
     </PackageReference>
     <PackageReference Include="Syncfusion.Licensing">
       <Version>20.1.0.47</Version>

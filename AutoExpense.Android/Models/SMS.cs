@@ -13,11 +13,11 @@
             Type = type;
         }
 
+        public string ThreadId { get; set; }
         public string Id { get; set; }
         public string Address { get; set; }
         public long Date { get; set; }
         public string Body { get; set; }
-        public string ThreadId { get; set; }
         public string Person { get; set; }
         public string Type { get; set; }
 

@@ -11,40 +11,34 @@ using System.Text;
 
 namespace AutoExpense.Android.Models
 {
-    public class Transaction
+    public class TPrediction
     {
-        public Transaction(string messageSender, long date, TransactionType? transactionType, float? amount, float? transactionCost, string code, string principal, string body, string threadId, string id)
+        public TPrediction(string threadId, string id, long date, string messageSender, TransactionType? transactionType, float? amount, float? transactionCost, string code, string principal)
         {
-            MessageSender = messageSender;
+            ThreadId = threadId;
+            Id = id;
             Date = date;
+            MessageSender = messageSender;
             TransactionType = transactionType;
             Amount = amount;
             TransactionCost = transactionCost;
             Code = code;
             Principal = principal;
-            Body = body;
-            ThreadId = threadId;
-            Id = id;
         }
 
-        public string MessageSender { get; set; }
+        public TPrediction()
+        {
+            
+        }
+
+        public string ThreadId { get; set; }
+        public string Id { get; set; }
         public long Date { get; set; }
+        public string MessageSender { get; set; }
         public TransactionType? TransactionType { get; set; }
         public float? Amount { get; set; }
         public float? TransactionCost { get; set; }
         public string Code { get; set; }
         public string Principal { get; set; }
-        public string Body { get; set; }
-        public string ThreadId { get; set; }
-        public string Id { get; set; }
-
-    }
-
-    public enum TransactionType
-    {
-        CashOutflow,
-        CashInflow,
-        Fuliza
-
     }
 }
