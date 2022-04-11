@@ -30,7 +30,7 @@
         app:layout_constraintTop_toTopOf="@id/update_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintWidth_percent=".45"
-        android:background="@color/colorSecondary"
+        android:background="@drawable/secondary_color_button_round"
         android:text="Cancel"
         android:fontFamily="@font/poppins"
         android:textSize="@dimen/text_size_medium"

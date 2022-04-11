@@ -10,6 +10,8 @@ using Syncfusion.Android.DataForm;
 using Xamarin.Essentials;
 using Toolbar = AndroidX.AppCompat.Widget.Toolbar;
 using static AutoExpense.Android.Helpers.Constants;
+using AutoExpense.Android.Services;
+using System.Linq;
 
 namespace AutoExpense.Android.Activities
 {
@@ -18,8 +20,9 @@ namespace AutoExpense.Android.Activities
     {
         private SfDataForm configDataForm;
         private Toolbar settingsToolbar;
-        private Button saveButton;
+        private Button saveButton, useDefaultsButton;
         public AppConfig AppConfig { get; set; }
+
 
         public SettingsActivity()
         {
@@ -44,6 +47,7 @@ namespace AutoExpense.Android.Activities
             SetContentView(Resource.Layout.fragment_settings);
             configDataForm = FindViewById<SfDataForm>(Resource.Id.sf_data_form);
             saveButton = FindViewById<Button>(Resource.Id.save_settings_button);
+            useDefaultsButton = FindViewById<Button>(Resource.Id.use_default_button);
             settingsToolbar = FindViewById<Toolbar>(Resource.Id.settings_toolbar);
 
             SetUpToolBar();
@@ -56,12 +60,27 @@ namespace AutoExpense.Android.Activities
             configDataForm.ColumnCount = 1;
 
             saveButton.Click += SaveButton_Click;
+            useDefaultsButton.Click += UseDefaultsButton_Click;
+        }
+
+        private async void UseDefaultsButton_Click(object sender, System.EventArgs e)
+        {
+            var firebaseDatabase = new FirebaseDatabaseService(Platform.AppContext);
+            var configs = await firebaseDatabase.GetItemsAsync<AppConfig>(LUIS_APP_CONFIG_CHILD_NAME);
+            AppConfig = configs.FirstOrDefault();
+
+            configDataForm.Commit();
+            SaveData();
         }
 
         private void SaveButton_Click(object sender, System.EventArgs e)
         {
             configDataForm.Commit();
+            SaveData();       
+        }
 
+        private void SaveData()
+        {
             if (string.IsNullOrEmpty(AppConfig.LuisAppId) || string.IsNullOrEmpty(AppConfig.LuisSubscriptionKey) ||
                 string.IsNullOrEmpty(AppConfig.YnabAccessToken) || string.IsNullOrEmpty(AppConfig.EndPointUrl))
             {

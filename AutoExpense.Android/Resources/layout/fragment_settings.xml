@@ -88,6 +88,23 @@
         android:fontFamily="@font/poppins"/>
 
 
+       <Button
+        android:id="@+id/use_default_button"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:text="Use Defaults"
+        android:background="@drawable/primary_color_button_round"
+        app:layout_constraintTop_toBottomOf="@id/save_settings_button"
+        app:layout_constraintLeft_toRightOf="@id/left_guideline"
+        app:layout_constraintRight_toLeftOf="@id/right_guideline"
+        android:layout_margin="@dimen/margin_padding_size_large"
+        android:textColor="@android:color/white"
+        android:textSize="@dimen/margin_padding_size_medium"
+        android:gravity="center"
+        android:fontFamily="@font/poppins"/>
+
+
+
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

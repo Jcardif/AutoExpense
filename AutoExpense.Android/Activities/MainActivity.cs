@@ -19,37 +19,42 @@ using Google.Android.Material.BottomSheet;
 using Xamarin.Essentials;
 using Uri=Android.Net.Uri;
 using static AutoExpense.Android.Helpers.Constants;
-
+using System.Threading.Tasks;
+using Microsoft.AppCenter;
+using Microsoft.AppCenter.Analytics;
+using Microsoft.AppCenter.Crashes;
 
 namespace AutoExpense.Android.Activities
 {
     [Activity(Label = "@string/app_name", Theme = "@style/AppTheme", MainLauncher = true)]
     public class MainActivity : AppCompatActivity, ISendersManager
     {
-        private RecyclerView transactionsRecyclerView;
-        private TextView timeOfDayTextView, nameTextView, totalMessagesTextView, syncedMessagesTextView;
-        private Button sendersButton, syncButton;
-        private TransactionsAdapter transactionsAdapter;
-        private BottomSheetDialog bottomSheetDialog;
-        private ImageView settingsImageView;
-        public List<SMS> messages { get; set; }
-        public List<string> senders { get; set; }
+        private RecyclerView? transactionsRecyclerView;
+        private TextView? timeOfDayTextView, nameTextView, totalMessagesTextView, syncedMessagesTextView;
+        private Button? sendersButton, syncButton;
+        private TransactionsAdapter? transactionsAdapter;
+        private BottomSheetDialog? bottomSheetDialog;
+        private ImageView? settingsImageView;
+        public List<SMS>? messages { get; set; }
+        public List<string>? senders { get; set; }
         public List<string> SelectSenders { get; set; }=new List<string>();
         public List<Transaction> DisplayedTransactions { get; set; } = new List<Transaction>();
-        public LocalDatabaseService dbService { get; set; }
+        public LocalDatabaseService? dbService { get; set; }
+        public FirebaseDatabaseService FirebaseDatabaseService { get; set; }
 
-        protected override void OnCreate(Bundle savedInstanceState)
+        protected override void OnCreate(Bundle? savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
             Platform.Init(this, savedInstanceState);
             Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("NjA1MjQxQDMyMzAyZTMxMmUzMExxQjBrWW1zcW83ZUQ0UFJ6VTNnOTRQdnRrTUpZOXlFa2VFUGVVdWxhSGs9");
+            AppCenter.Start("7e7c2c36-1ea9-499e-8d3f-96158e8924f8", typeof(Analytics), typeof(Crashes));
 
             var path = Path.Combine(
                 System.Environment.GetFolderPath(System.Environment.SpecialFolder.LocalApplicationData),
                 "AutoExpense.db3");
 
             dbService = new LocalDatabaseService(path);
-
+            FirebaseDatabaseService = new FirebaseDatabaseService(this);
 
             // Set our view from the "main" layout resource
             SetContentView(Resource.Layout.activity_main);
@@ -70,7 +75,7 @@ namespace AutoExpense.Android.Activities
             LoadMessages();
 
             transactionsAdapter = new TransactionsAdapter(DisplayedTransactions);
-            transactionsRecyclerView.SetAdapter(transactionsAdapter);
+            transactionsRecyclerView?.SetAdapter(transactionsAdapter);
 
 
             UpdateStatusCard();
@@ -143,12 +148,16 @@ namespace AutoExpense.Android.Activities
                     DisplayedTransactions[index].Code = prediction.Prediction.Entities.Code?.FirstOrDefault() ?? string.Empty;
                     DisplayedTransactions[index].TransactionType = transactionType;
 
-                    transactionsAdapter.NotifyItemChanged(index);
+                    transactionsAdapter?.NotifyItemChanged(index);
 
-                    dbService.SaveTransactionPrediction(new TPrediction(transaction.ThreadId, transaction.Id,
+                    var tPrediction = new TPrediction(transaction.ThreadId, transaction.Id,
                         transaction.Date,
                         transaction.MessageSender, transaction.TransactionType, transaction.Amount,
-                        transaction.TransactionCost, transaction.Code, transaction.Principal));
+                        transaction.TransactionCost, transaction.Code, transaction.Principal);
+
+                    await  FirebaseDatabaseService.AddItemAsync<TPrediction>(tPrediction, TPREDICTION_CHILD_NAME);
+
+                    dbService?.SaveTransactionPrediction(tPrediction);
 
 
                 }
@@ -165,9 +174,20 @@ namespace AutoExpense.Android.Activities
            StartActivity(typeof(SettingsActivity));
         }
 
-        private void LoadMessages()
+        private async Task LoadMessages()
         {
             messages = GetAllSms();
+
+            var tPredictionsRemote = await FirebaseDatabaseService.GetItemsAsync<TPrediction>(TPREDICTION_CHILD_NAME);
+            var tPredictions = dbService?.GetTransactionPredictions();
+            foreach(var tpr in tPredictionsRemote)
+            {
+                if (tPredictions.Contains(tpr))
+                    continue;
+                dbService.SaveTransactionPrediction(tpr);
+            }
+
+
 
             var sendersString = Preferences.Get(SENDERS_LIST, null);
             SelectSenders = string.IsNullOrEmpty(sendersString)
@@ -179,7 +199,7 @@ namespace AutoExpense.Android.Activities
             {
                 if (SelectSenders.Contains(message.Address))
                 {
-                    var tPredictions = dbService.GetTransactionPredictions();
+                    tPredictions = dbService.GetTransactionPredictions();
                     var tPrediction =
                         tPredictions.FirstOrDefault(t => t.Id == message.Id && t.ThreadId == message.ThreadId);
 
@@ -189,6 +209,7 @@ namespace AutoExpense.Android.Activities
                             message.Body, message.ThreadId, message.Id);
                         
                         DisplayedTransactions.Add(transaction);
+                        transactionsAdapter?.NotifyItemInserted(DisplayedTransactions.Count - 1);
                         continue;
                     }
                     else
@@ -197,6 +218,7 @@ namespace AutoExpense.Android.Activities
                             message.Body, message.ThreadId, message.Id);
 
                         DisplayedTransactions.Add(transaction);
+                        transactionsAdapter?.NotifyItemInserted(DisplayedTransactions.Count - 1);
                         continue;
                     }
 
@@ -270,7 +292,7 @@ namespace AutoExpense.Android.Activities
             UpdateStatusCard();
         }
 
-        private string GetTimeofDay()
+        private string? GetTimeofDay()
         {
             var greeting = "";
             var hour = DateTime.Now.Hour;
