@@ -41,6 +41,7 @@ namespace AutoExpense.Android.Activities
         public List<Transaction> DisplayedTransactions { get; set; } = new List<Transaction>();
         public LocalDatabaseService? dbService { get; set; }
         public FirebaseDatabaseService FirebaseDatabaseService { get; set; }
+        private ProgressBar? syncingProgressBar;
 
         protected override void OnCreate(Bundle? savedInstanceState)
         {
@@ -67,6 +68,7 @@ namespace AutoExpense.Android.Activities
             sendersButton = FindViewById<Button>(Resource.Id.senders_button);
             syncButton = FindViewById<Button>(Resource.Id.sync_button);
             settingsImageView = FindViewById<ImageView>(Resource.Id.settings_imageView);
+            syncingProgressBar = FindViewById<ProgressBar>(Resource.Id.syncing_progress_bar);
 
             timeOfDayTextView.Text=GetTimeofDay();
 
@@ -105,6 +107,10 @@ namespace AutoExpense.Android.Activities
 
         private async void SyncTransactions(string luisAppId, string luisSubscriptionKey, string ynabAccessToken, string endpointUrl)
         {
+            syncButton.Enabled = false;
+            syncingProgressBar.Visibility = ViewStates.Visible;
+            syncingProgressBar.Enabled = true;
+
             var luisPredictionService = new LuisPredictionService(luisAppId, luisSubscriptionKey, endpointUrl);
             var temps = DisplayedTransactions.Select(d => d).ToList();
             foreach (var transaction in temps)
@@ -167,6 +173,10 @@ namespace AutoExpense.Android.Activities
                     continue;
                 }
             }
+
+            syncButton.Enabled = true;
+            syncingProgressBar.Visibility = ViewStates.Gone;
+            syncingProgressBar.Enabled = false;
         }
 
         private void SettingsImageView_Click(object sender, EventArgs e)
@@ -182,7 +192,7 @@ namespace AutoExpense.Android.Activities
             var tPredictions = dbService?.GetTransactionPredictions();
             foreach(var tpr in tPredictionsRemote)
             {
-                if (tPredictions.Contains(tpr))
+                if (tPredictions.Any(tp => tp.Code == tpr.Code))
                     continue;
                 dbService.SaveTransactionPrediction(tpr);
             }
@@ -195,11 +205,12 @@ namespace AutoExpense.Android.Activities
                 : sendersString.Split(",").Where(s => !string.IsNullOrEmpty(s)).Distinct().ToList();
 
 
+            tPredictions = dbService.GetTransactionPredictions();
+
             foreach (var message in messages)
             {
                 if (SelectSenders.Contains(message.Address))
                 {
-                    tPredictions = dbService.GetTransactionPredictions();
                     var tPrediction =
                         tPredictions.FirstOrDefault(t => t.Id == message.Id && t.ThreadId == message.ThreadId);
 
