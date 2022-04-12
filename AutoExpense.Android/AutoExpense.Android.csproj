@@ -86,12 +86,15 @@
     <Compile Include="Models\LuisPrediction.cs" />
     <Compile Include="Models\SMS.cs" />
     <Compile Include="Models\TPrediction.cs" />
-    <Compile Include="Models\Transaction.cs" />
+    <Compile Include="Models\LocalTransaction.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\LocalDatabaseService.cs" />
     <Compile Include="Services\LuisPredictionService.cs" />
     <Compile Include="Services\FirebaseDatabaseService.cs" />
+    <Compile Include="Models\YnabTransaction.cs" />
+    <Compile Include="Services\YnabDataService.cs" />
+    <Compile Include="Models\YnabBudget.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\AboutResources.txt" />
@@ -119,6 +122,10 @@
     <AndroidResource Include="Resources\mipmap-xxhdpi\ic_launcher_round.png" />
     <AndroidResource Include="Resources\mipmap-xxxhdpi\ic_launcher.png" />
     <AndroidResource Include="Resources\mipmap-xxxhdpi\ic_launcher_round.png" />
+    <AndroidResource Include="Resources\layout\dialog_ynab.xml">
+      <SubType></SubType>
+      <Generator></Generator>
+    </AndroidResource>
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\ic_sync_problem.xml" />

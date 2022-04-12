@@ -19,9 +19,9 @@ namespace AutoExpense.Android.Adapters
 {
     public class TransactionsAdapter : RecyclerView.Adapter
     {
-        private readonly List<Transaction> _transactions;
+        private readonly List<LocalTransaction> _transactions;
 
-        public TransactionsAdapter(List<Transaction> transactions)
+        public TransactionsAdapter(List<LocalTransaction> transactions)
         {
             _transactions = transactions;
         }

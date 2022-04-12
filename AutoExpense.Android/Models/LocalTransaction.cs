@@ -11,9 +11,9 @@ using System.Text;
 
 namespace AutoExpense.Android.Models
 {
-    public class Transaction
+    public class LocalTransaction
     {
-        public Transaction(string messageSender, long date, TransactionType? transactionType, float? amount, float? transactionCost, string code, string principal, string body, string threadId, string id)
+        public LocalTransaction(string messageSender, long date, TransactionType? transactionType, float? amount, float? transactionCost, string code, string principal, string body, string threadId, string id)
         {
             MessageSender = messageSender;
             Date = date;

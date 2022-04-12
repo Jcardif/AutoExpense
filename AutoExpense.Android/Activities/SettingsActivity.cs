@@ -30,13 +30,15 @@ namespace AutoExpense.Android.Activities
             var luisSubscriptionKey = Preferences.Get(LUIS_SUBBSCRIPTION_KEY, null);
             var ynabAccessToken = Preferences.Get(YNAB_ACCESS_TOKEN, null);
             var endpointUrl = Preferences.Get(ENDPOINT_URL, null);
+            var saveToYnab = Preferences.Get(SAVE_TO_YNAB, false);
 
             AppConfig = new AppConfig
             {
                 LuisAppId = luisAppId,
                 LuisSubscriptionKey = luisSubscriptionKey,
                 YnabAccessToken = ynabAccessToken,
-                EndPointUrl = endpointUrl
+                EndPointUrl = endpointUrl,
+                SaveToYnab=saveToYnab
             };
         }
 
@@ -92,6 +94,7 @@ namespace AutoExpense.Android.Activities
             Preferences.Set(LUIS_SUBBSCRIPTION_KEY, AppConfig.LuisSubscriptionKey);
             Preferences.Set(YNAB_ACCESS_TOKEN, AppConfig.YnabAccessToken);
             Preferences.Set(ENDPOINT_URL, AppConfig.EndPointUrl);
+            Preferences.Set(SAVE_TO_YNAB, AppConfig.SaveToYnab);
 
             Toast.MakeText(Platform.AppContext, "Settings Saved", ToastLength.Short)?.Show();
 

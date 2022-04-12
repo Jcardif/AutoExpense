@@ -23,6 +23,10 @@ using System.Threading.Tasks;
 using Microsoft.AppCenter;
 using Microsoft.AppCenter.Analytics;
 using Microsoft.AppCenter.Crashes;
+using AndroidX.CardView.Widget;
+using Android.Graphics;
+using AndroidX.Core.Content;
+using Path = System.IO.Path;
 
 namespace AutoExpense.Android.Activities
 {
@@ -38,10 +42,17 @@ namespace AutoExpense.Android.Activities
         public List<SMS>? messages { get; set; }
         public List<string>? senders { get; set; }
         public List<string> SelectSenders { get; set; }=new List<string>();
-        public List<Transaction> DisplayedTransactions { get; set; } = new List<Transaction>();
+        public List<LocalTransaction> DisplayedTransactions { get; set; } = new List<LocalTransaction>();
         public LocalDatabaseService? dbService { get; set; }
         public FirebaseDatabaseService FirebaseDatabaseService { get; set; }
         private ProgressBar? syncingProgressBar;
+        private CardView? ynabCardView;
+
+        private string ynabAccessToken;
+        private string endpointUrl;
+        private bool saveToYnab;
+        private string luisAppId;
+        private string luisSubscriptionKey;
 
         protected override void OnCreate(Bundle? savedInstanceState)
         {
@@ -69,6 +80,7 @@ namespace AutoExpense.Android.Activities
             syncButton = FindViewById<Button>(Resource.Id.sync_button);
             settingsImageView = FindViewById<ImageView>(Resource.Id.settings_imageView);
             syncingProgressBar = FindViewById<ProgressBar>(Resource.Id.syncing_progress_bar);
+            ynabCardView = FindViewById<CardView>(Resource.Id.ynab_card);
 
             timeOfDayTextView.Text=GetTimeofDay();
 
@@ -79,6 +91,11 @@ namespace AutoExpense.Android.Activities
             transactionsAdapter = new TransactionsAdapter(DisplayedTransactions);
             transactionsRecyclerView?.SetAdapter(transactionsAdapter);
 
+            luisAppId = Preferences.Get(LUIS_APP_ID, null);
+            luisSubscriptionKey = Preferences.Get(LUIS_SUBBSCRIPTION_KEY, null);
+            ynabAccessToken = Preferences.Get(YNAB_ACCESS_TOKEN, null);
+            endpointUrl = Preferences.Get(ENDPOINT_URL, null);
+            saveToYnab = Preferences.Get(SAVE_TO_YNAB, false);
 
             UpdateStatusCard();
             nameTextView.Text = "Josh N.";
@@ -86,15 +103,11 @@ namespace AutoExpense.Android.Activities
             sendersButton.Click += SendersButton_Click;
             settingsImageView.Click += SettingsImageView_Click;
             syncButton.Click += SyncButton_Click;
+            ynabCardView.Click += async (s, e) => await ShowYnabBottomSheetDialog();
         }
 
-        private void SyncButton_Click(object sender, EventArgs e)
+        private async void SyncButton_Click(object sender, EventArgs e)
         {
-            var luisAppId = Preferences.Get(LUIS_APP_ID, null);
-            var luisSubscriptionKey = Preferences.Get(LUIS_SUBBSCRIPTION_KEY, null);
-            var ynabAccessToken = Preferences.Get(YNAB_ACCESS_TOKEN, null);
-            var endpointUrl = Preferences.Get(ENDPOINT_URL, null);
-
             if (string.IsNullOrEmpty(luisAppId) || string.IsNullOrEmpty(luisSubscriptionKey) ||
                 string.IsNullOrEmpty(ynabAccessToken) || string.IsNullOrEmpty(endpointUrl))
             {
@@ -102,10 +115,17 @@ namespace AutoExpense.Android.Activities
                 return;
             }
 
-            SyncTransactions(luisAppId, luisSubscriptionKey, ynabAccessToken, endpointUrl);
+            var budgetId = Preferences.Get(YNAB_SYNC_BUDGET_ID, null);
+            if (string.IsNullOrEmpty(budgetId))
+            {
+                await ShowYnabBottomSheetDialog();
+                return;
+            }
+
+            SyncTransactions(luisAppId, luisSubscriptionKey, ynabAccessToken, endpointUrl, saveToYnab);
         }
 
-        private async void SyncTransactions(string luisAppId, string luisSubscriptionKey, string ynabAccessToken, string endpointUrl)
+        private async void SyncTransactions(string luisAppId, string luisSubscriptionKey, string ynabAccessToken, string endpointUrl, bool saveToYnab)
         {
             syncButton.Enabled = false;
             syncingProgressBar.Visibility = ViewStates.Visible;
@@ -156,14 +176,24 @@ namespace AutoExpense.Android.Activities
 
                     transactionsAdapter?.NotifyItemChanged(index);
 
-                    var tPrediction = new TPrediction(transaction.ThreadId, transaction.Id,
-                        transaction.Date,
-                        transaction.MessageSender, transaction.TransactionType, transaction.Amount,
-                        transaction.TransactionCost, transaction.Code, transaction.Principal);
+                    if(saveToYnab is false)
+                    {
+                        var tPrediction = new TPrediction(transaction.ThreadId, transaction.Id, transaction.Date, transaction.MessageSender,
+                            transaction.TransactionType, transaction.Amount, transaction.TransactionCost, transaction.Code, transaction.Principal, YnabSyncStatus.Skipped);
+                        await FirebaseDatabaseService.AddItemAsync<TPrediction>(tPrediction, TPREDICTION_CHILD_NAME);
+                        dbService?.SaveTransactionPrediction(tPrediction);
+                    }
 
-                    await  FirebaseDatabaseService.AddItemAsync<TPrediction>(tPrediction, TPREDICTION_CHILD_NAME);
 
-                    dbService?.SaveTransactionPrediction(tPrediction);
+                    else
+                    {
+                        var tPrediction = new TPrediction(transaction.ThreadId, transaction.Id, transaction.Date, transaction.MessageSender,
+                            transaction.TransactionType, transaction.Amount, transaction.TransactionCost, transaction.Code, transaction.Principal, YnabSyncStatus.Synced);
+
+                        //todo: save to ynab
+
+                    }
+                    
 
 
                 }
@@ -216,7 +246,7 @@ namespace AutoExpense.Android.Activities
 
                     if (tPrediction is null)
                     {
-                        var transaction = new Transaction(message.Address, message.Date, null, null, null, null, null,
+                        var transaction = new LocalTransaction(message.Address, message.Date, null, null, null, null, null,
                             message.Body, message.ThreadId, message.Id);
                         
                         DisplayedTransactions.Add(transaction);
@@ -225,7 +255,7 @@ namespace AutoExpense.Android.Activities
                     }
                     else
                     {
-                        var transaction = new Transaction(tPrediction.MessageSender, message.Date, tPrediction.TransactionType, tPrediction.Amount, tPrediction.TransactionCost, tPrediction.Code, tPrediction.Principal,
+                        var transaction = new LocalTransaction(tPrediction.MessageSender, message.Date, tPrediction.TransactionType, tPrediction.Amount, tPrediction.TransactionCost, tPrediction.Code, tPrediction.Principal,
                             message.Body, message.ThreadId, message.Id);
 
                         DisplayedTransactions.Add(transaction);
@@ -248,7 +278,7 @@ namespace AutoExpense.Android.Activities
 
         private void SendersButton_Click(object sender, EventArgs e)
         {
-            senders = messages.Where(s => !s.Address.StartsWith("+")).Select(s => s.Address).Distinct().ToList();
+            senders = messages?.Where(s => !s.Address.StartsWith("+")).Select(s => s.Address).Distinct().ToList();
 
             
             bottomSheetDialog = new BottomSheetDialog(this);
@@ -263,6 +293,49 @@ namespace AutoExpense.Android.Activities
 
             cancelButton.Click += (s, e) => bottomSheetDialog.Dismiss();
             updateButton.Click += UpdateButton_Click;
+
+            bottomSheetDialog.Show();
+        }
+
+        private async Task ShowYnabBottomSheetDialog()
+        {
+            if (string.IsNullOrEmpty(luisAppId) || string.IsNullOrEmpty(luisSubscriptionKey) || string.IsNullOrEmpty(ynabAccessToken) || string.IsNullOrEmpty(endpointUrl))
+            {
+                StartActivity(typeof(SettingsActivity));
+                return;
+            }
+
+            var ynabBudget = await new YnabDataService(ynabAccessToken).GetBudgetsAsync();
+
+            bottomSheetDialog = new BottomSheetDialog(this);
+            bottomSheetDialog.SetContentView(Resource.Layout.dialog_ynab);
+
+            var radioGroup = bottomSheetDialog.FindViewById<RadioGroup>(Resource.Id.budgets_radioGroup);
+
+            if (ynabBudget is null)
+                return;
+
+            var budegtId = Preferences.Get(YNAB_SYNC_BUDGET_ID, null);
+
+            foreach (var budget in ynabBudget.Data.Budgets)
+            {
+                var radioButton = new RadioButton(Platform.AppContext);
+                radioButton.Id = 7756798 + new Random().Next(0, 599);
+                radioButton.Text = budget.Name;
+                radioButton.TextSize = 16;
+                radioButton.SetTextColor(Color.White);
+                radioButton.Checked = budegtId == budget.Id;
+
+                radioGroup?.AddView(radioButton);
+
+                radioButton.CheckedChange += (s, e) =>
+                {
+                    if (!e.IsChecked)
+                        return;
+
+                    Preferences.Set(YNAB_SYNC_BUDGET_ID, ynabBudget.Data.Budgets.FirstOrDefault(b => b.Name == radioButton.Text).Id);
+                };
+            }
 
             bottomSheetDialog.Show();
         }
@@ -285,7 +358,7 @@ namespace AutoExpense.Android.Activities
             {
                 if (SelectSenders.Contains(message.Address))
                 {
-                    var transaction = new Transaction(message.Address, message.Date, null, null, null, null, null,
+                    var transaction = new LocalTransaction(message.Address, message.Date, null, null, null, null, null,
                         message.Body, message.ThreadId, message.Id);
 
                     DisplayedTransactions.Add(transaction);
@@ -305,8 +378,8 @@ namespace AutoExpense.Android.Activities
 
         private string? GetTimeofDay()
         {
-            var greeting = "";
             var hour = DateTime.Now.Hour;
+            string? greeting;
             if (hour < 12)
             {
                 greeting = "Good Morning";

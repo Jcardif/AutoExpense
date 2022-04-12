@@ -16,6 +16,8 @@ namespace AutoExpense.Android.Models
         [Display(Name = "YNAB Access Token"), Required(AllowEmptyStrings = false, ErrorMessage = "Access Token Needed to save transaction to YNAB")]
         public string YnabAccessToken { get; set; }
 
+        [Display(Name = "Save to YNAB")]
+        public bool SaveToYnab { get; set; }
 
     }
 }

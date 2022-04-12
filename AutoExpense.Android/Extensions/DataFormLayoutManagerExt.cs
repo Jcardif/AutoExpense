@@ -2,7 +2,9 @@
 using Android.Text;
 using Android.Views;
 using Android.Widget;
+using AndroidX.Core.Content;
 using Syncfusion.Android.DataForm;
+using Xamarin.Essentials;
 
 namespace AutoExpense.Android.Extensions
 {
@@ -22,9 +24,9 @@ namespace AutoExpense.Android.Extensions
             var label = base.GenerateViewForLabel(dataFormItem);
             if (label is TextView view)
             {
-                view.Typeface = Typeface.Default;
+                view.Typeface = Typeface.DefaultBold;
                 view.TextSize = 16;
-                view.SetTextColor(Color.White);
+                view.SetTextColor(new Color(ContextCompat.GetColor(Platform.AppContext, Resource.Color.colorPrimary)));
             }
             return label;
         }
