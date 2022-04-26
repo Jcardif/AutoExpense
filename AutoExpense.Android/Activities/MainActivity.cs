@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using Android;
 using Android.App;
@@ -17,7 +16,7 @@ using AutoExpense.Android.Models;
 using AutoExpense.Android.Services;
 using Google.Android.Material.BottomSheet;
 using Xamarin.Essentials;
-using Uri=Android.Net.Uri;
+using Uri = Android.Net.Uri;
 using static AutoExpense.Android.Helpers.Constants;
 using System.Threading.Tasks;
 using Microsoft.AppCenter;
@@ -25,8 +24,8 @@ using Microsoft.AppCenter.Analytics;
 using Microsoft.AppCenter.Crashes;
 using AndroidX.CardView.Widget;
 using Android.Graphics;
-using AndroidX.Core.Content;
 using Path = System.IO.Path;
+using Android.Icu.Text;
 
 namespace AutoExpense.Android.Activities
 {
@@ -45,6 +44,7 @@ namespace AutoExpense.Android.Activities
         public List<LocalTransaction> DisplayedTransactions { get; set; } = new List<LocalTransaction>();
         public LocalDatabaseService? dbService { get; set; }
         public FirebaseDatabaseService FirebaseDatabaseService { get; set; }
+        public YnabDataService YnabDataService { get; set; }
         private ProgressBar? syncingProgressBar;
         private CardView? ynabCardView;
 
@@ -91,11 +91,7 @@ namespace AutoExpense.Android.Activities
             transactionsAdapter = new TransactionsAdapter(DisplayedTransactions);
             transactionsRecyclerView?.SetAdapter(transactionsAdapter);
 
-            luisAppId = Preferences.Get(LUIS_APP_ID, null);
-            luisSubscriptionKey = Preferences.Get(LUIS_SUBBSCRIPTION_KEY, null);
-            ynabAccessToken = Preferences.Get(YNAB_ACCESS_TOKEN, null);
-            endpointUrl = Preferences.Get(ENDPOINT_URL, null);
-            saveToYnab = Preferences.Get(SAVE_TO_YNAB, false);
+            GetAppSettings();
 
             UpdateStatusCard();
             nameTextView.Text = "Josh N.";
@@ -106,8 +102,19 @@ namespace AutoExpense.Android.Activities
             ynabCardView.Click += async (s, e) => await ShowYnabBottomSheetDialog();
         }
 
+        private void GetAppSettings()
+        {
+            luisAppId = Preferences.Get(LUIS_APP_ID, null);
+            luisSubscriptionKey = Preferences.Get(LUIS_SUBBSCRIPTION_KEY, null);
+            ynabAccessToken = Preferences.Get(YNAB_ACCESS_TOKEN, null);
+            endpointUrl = Preferences.Get(ENDPOINT_URL, null);
+            saveToYnab = Preferences.Get(SAVE_TO_YNAB, false);
+        }
+
         private async void SyncButton_Click(object sender, EventArgs e)
         {
+            GetAppSettings();
+
             if (string.IsNullOrEmpty(luisAppId) || string.IsNullOrEmpty(luisSubscriptionKey) ||
                 string.IsNullOrEmpty(ynabAccessToken) || string.IsNullOrEmpty(endpointUrl))
             {
@@ -190,7 +197,43 @@ namespace AutoExpense.Android.Activities
                         var tPrediction = new TPrediction(transaction.ThreadId, transaction.Id, transaction.Date, transaction.MessageSender,
                             transaction.TransactionType, transaction.Amount, transaction.TransactionCost, transaction.Code, transaction.Principal, YnabSyncStatus.Synced);
 
-                        //todo: save to ynab
+                        await FirebaseDatabaseService.AddItemAsync<TPrediction>(tPrediction, TPREDICTION_CHILD_NAME);
+                        dbService?.SaveTransactionPrediction(tPrediction);
+
+
+                        YnabDataService = new YnabDataService(ynabAccessToken);
+
+                        var date = new SimpleDateFormat("YYYY-MM-dd").Format(transaction.Date); 
+                        var subTransactions = new List<Subtransaction>();
+                        var memo = transaction.Body.Length > 200 ? transaction.Body.Substring(0, 200) : transaction.Body;
+                        var amount = transaction.TransactionType == TransactionType.Fuliza || transaction.TransactionType == TransactionType.CashOutflow ? transaction.Amount * -1 : transaction.Amount;
+                        var amt = (int)Math.Round(amount ?? 0) * 1000;
+
+                        var budgetId = Preferences.Get(YNAB_SYNC_BUDGET_ID, null);
+
+                        if (transaction.TransactionCost != null && transaction.TransactionCost != 0)
+                        {
+                            var tcost = (int)Math.Round(transaction.TransactionCost * -1000 ?? 0);
+                            var subTransactionCost = new Subtransaction(tcost, null, "Safaricom Transaction Costs", null, memo);
+                            subTransactions.Add(subTransactionCost);
+
+                            var subTransactionAmt = new Subtransaction(amt, null, transaction.Principal, null, memo);
+                            subTransactions.Add(subTransactionAmt);
+
+                            amt += tcost;
+
+                            var trnsn1 = new Transaction("6622a12a-5d30-4eb4-baff-d780e059793c", date, amt, null, transaction.Principal, null, null, "cleared", true, null, null, subTransactions);
+                            var ynabTransaction1 = new YnabTransaction(trnsn1);
+
+                     
+                            await YnabDataService.SaveTransactionAsync(ynabTransaction1, budgetId);
+                            continue;
+                        }
+
+                        var trnsn = new Transaction("6622a12a-5d30-4eb4-baff-d780e059793c", date, amt, null, transaction.Principal, null, memo, "cleared", true, null, null, subTransactions);
+                        var ynabTransaction = new YnabTransaction(trnsn);
+
+                        await YnabDataService.SaveTransactionAsync(ynabTransaction, budgetId);
 
                     }
                     

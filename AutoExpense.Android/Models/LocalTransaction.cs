@@ -13,7 +13,7 @@ namespace AutoExpense.Android.Models
 {
     public class LocalTransaction
     {
-        public LocalTransaction(string messageSender, long date, TransactionType? transactionType, float? amount, float? transactionCost, string code, string principal, string body, string threadId, string id)
+        public LocalTransaction(string messageSender, long date, TransactionType? transactionType, double? amount, double? transactionCost, string code, string principal, string body, string threadId, string id)
         {
             MessageSender = messageSender;
             Date = date;
@@ -30,8 +30,8 @@ namespace AutoExpense.Android.Models
         public string MessageSender { get; set; }
         public long Date { get; set; }
         public TransactionType? TransactionType { get; set; }
-        public float? Amount { get; set; }
-        public float? TransactionCost { get; set; }
+        public double? Amount { get; set; }
+        public double? TransactionCost { get; set; }
         public string Code { get; set; }
         public string Principal { get; set; }
         public string Body { get; set; }

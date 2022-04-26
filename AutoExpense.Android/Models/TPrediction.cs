@@ -13,7 +13,7 @@ namespace AutoExpense.Android.Models
 {
     public class TPrediction
     {
-        public TPrediction(string threadId, string id, long date, string messageSender, TransactionType? transactionType, float? amount, float? transactionCost, string code, string principal, YnabSyncStatus ynabSyncStatus)
+        public TPrediction(string threadId, string id, long date, string messageSender, TransactionType? transactionType, double? amount, double? transactionCost, string code, string principal, YnabSyncStatus ynabSyncStatus)
         {
             ThreadId = threadId;
             Id = id;
@@ -37,8 +37,8 @@ namespace AutoExpense.Android.Models
         public long Date { get; set; }
         public string MessageSender { get; set; }
         public TransactionType? TransactionType { get; set; }
-        public float? Amount { get; set; }
-        public float? TransactionCost { get; set; }
+        public double? Amount { get; set; }
+        public double? TransactionCost { get; set; }
         public string Code { get; set; }
         public string Principal { get; set; }
         public YnabSyncStatus YnabSyncStatus { get; set; }
