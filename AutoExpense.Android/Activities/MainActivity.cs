@@ -210,6 +210,7 @@ namespace AutoExpense.Android.Activities
                         var amt = (int)Math.Round(amount ?? 0) * 1000;
 
                         var budgetId = Preferences.Get(YNAB_SYNC_BUDGET_ID, null);
+                        var mpesaAccountId = budgetId == "59da31b6-115c-42c5-b5bc-97dfa8b2fe1c" ? "675d0b58-4359-4ef8-a19e-35fc9b2a2458" : "6622a12a-5d30-4eb4-baff-d780e059793c";
 
                         if (transaction.TransactionCost != null && transaction.TransactionCost != 0)
                         {
@@ -222,7 +223,7 @@ namespace AutoExpense.Android.Activities
 
                             amt += tcost;
 
-                            var trnsn1 = new Transaction("6622a12a-5d30-4eb4-baff-d780e059793c", date, amt, null, transaction.Principal, null, null, "cleared", true, null, null, subTransactions);
+                            var trnsn1 = new Transaction(mpesaAccountId, date, amt, null, transaction.Principal, null, null, "cleared", true, null, null, subTransactions);
                             var ynabTransaction1 = new YnabTransaction(trnsn1);
 
                      
@@ -230,7 +231,7 @@ namespace AutoExpense.Android.Activities
                             continue;
                         }
 
-                        var trnsn = new Transaction("6622a12a-5d30-4eb4-baff-d780e059793c", date, amt, null, transaction.Principal, null, memo, "cleared", true, null, null, subTransactions);
+                        var trnsn = new Transaction(mpesaAccountId, date, amt, null, transaction.Principal, null, memo, "cleared", true, null, null, subTransactions);
                         var ynabTransaction = new YnabTransaction(trnsn);
 
                         await YnabDataService.SaveTransactionAsync(ynabTransaction, budgetId);
