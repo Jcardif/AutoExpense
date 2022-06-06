@@ -8,6 +8,15 @@
     android:paddingTop="@dimen/margin_padding_size_medium"
     android:paddingRight="@dimen/margin_padding_size_medium">
 
+    <View
+        android:id="@+id/selected_view"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:background="@drawable/ic_circle_selected"
+        app:layout_constraintBottom_toBottomOf="@id/date_time_textView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/sender_textView" />
+
     <TextView
         android:id="@+id/sender_textView"
         android:layout_width="wrap_content"
@@ -16,8 +25,9 @@
         android:textSize="@dimen/text_size_small"
         android:fontFamily="@font/poppins"
         android:textColor="@color/colorGray"
+        android:layout_marginLeft="5dp"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
+        app:layout_constraintStart_toEndOf="@id/selected_view"/>
 
     <TextView
         android:id="@+id/date_time_textView"

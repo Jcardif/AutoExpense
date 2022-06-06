@@ -14,16 +14,20 @@ using AndroidX.Core.Content;
 using AndroidX.RecyclerView.Widget;
 using AutoExpense.Android.Models;
 using Xamarin.Essentials;
+using static Android.Views.View;
+using AutoExpense.Android.Interfaces;
 
 namespace AutoExpense.Android.Adapters
 {
     public class TransactionsAdapter : RecyclerView.Adapter
     {
         private readonly List<LocalTransaction> _transactions;
+        private readonly IItemClickListener _itemClickListener;
 
-        public TransactionsAdapter(List<LocalTransaction> transactions)
+        public TransactionsAdapter(List<LocalTransaction> transactions, IItemClickListener itemClickListener)
         {
             _transactions = transactions;
+            _itemClickListener = itemClickListener;
         }
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
@@ -32,6 +36,15 @@ namespace AutoExpense.Android.Adapters
             {
                 vh.AddressTextView.Text = _transactions[position].MessageSender;
                 vh.DateTimeTextView.Text = new SimpleDateFormat("MMM dd, HH:mm").Format(_transactions[position].Date);
+
+                if (_transactions[position].IsSelected)
+                {
+                    vh.SelectedViewIndicator.Visibility = ViewStates.Visible;
+                }
+                else
+                {
+                    vh.SelectedViewIndicator.Visibility = ViewStates.Gone;
+                }
 
                 if (_transactions[position].TransactionType==TransactionType.Fuliza || _transactions[position].TransactionType == TransactionType.CashOutflow)
                 {
@@ -63,8 +76,9 @@ namespace AutoExpense.Android.Adapters
             var dateTimeText = view?.FindViewById<TextView>(Resource.Id.date_time_textView);
             var amountTextView = view?.FindViewById<TextView>(Resource.Id.amount);
             var syncProblem = view?.FindViewById<ImageView>(Resource.Id.sync_problem_imageView);
+            var selectedViewIndicator = view?.FindViewById<View>(Resource.Id.selected_view);
 
-            var holder = new TransactionsViewHolder(view, addressTextView, dateTimeText);
+            var holder = new TransactionsViewHolder(view, addressTextView, dateTimeText, _itemClickListener, selectedViewIndicator);
             holder.SyncProblem = syncProblem;
             holder.AmountTextView = amountTextView;
             return holder;
@@ -74,13 +88,20 @@ namespace AutoExpense.Android.Adapters
     }
 
 
-    public class TransactionsViewHolder : RecyclerView.ViewHolder
+    public class TransactionsViewHolder : RecyclerView.ViewHolder, IOnLongClickListener, IOnClickListener
     {
-        public TransactionsViewHolder(View itemView, TextView addressTextView, TextView dateTimeTextView) : base(itemView)
+        private readonly IItemClickListener _itemClicklistener;
+
+        public TransactionsViewHolder(View itemView, TextView addressTextView, TextView dateTimeTextView, IItemClickListener itemClicklistener, View selectedViewIndicator) : base(itemView)
         {
             View = itemView;
             AddressTextView = addressTextView;
             DateTimeTextView = dateTimeTextView;
+            _itemClicklistener = itemClicklistener;
+            SelectedViewIndicator = selectedViewIndicator;
+
+            View.SetOnLongClickListener(this);
+            View.SetOnClickListener(this);
         }
 
         public View View { get; set; }
@@ -88,6 +109,17 @@ namespace AutoExpense.Android.Adapters
         public TextView DateTimeTextView { get; set; }
         public TextView AmountTextView { get; set; }
         public ImageView SyncProblem { get; set; }
+        public View SelectedViewIndicator { get; set; }
 
+        public void OnClick(View? v)
+        {
+            _itemClicklistener.OnItemClick(View, BindingAdapterPosition, false);
+        }
+
+        public bool OnLongClick(View? v)
+        {
+            _itemClicklistener.OnItemClick(View, BindingAdapterPosition, true);
+            return true;
+        }
     }
 }

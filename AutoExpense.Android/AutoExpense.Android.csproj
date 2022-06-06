@@ -95,6 +95,8 @@
     <Compile Include="Models\YnabTransaction.cs" />
     <Compile Include="Services\YnabDataService.cs" />
     <Compile Include="Models\YnabBudget.cs" />
+    <Compile Include="Interfaces\ITransactionManager.cs" />
+    <Compile Include="Interfaces\IItemClickListener.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\AboutResources.txt" />
@@ -123,6 +125,18 @@
     <AndroidResource Include="Resources\mipmap-xxxhdpi\ic_launcher.png" />
     <AndroidResource Include="Resources\mipmap-xxxhdpi\ic_launcher_round.png" />
     <AndroidResource Include="Resources\layout\dialog_ynab.xml">
+      <SubType></SubType>
+      <Generator></Generator>
+    </AndroidResource>
+    <AndroidResource Include="Resources\drawable\ic_circle.xml">
+      <SubType></SubType>
+      <Generator></Generator>
+    </AndroidResource>
+    <AndroidResource Include="Resources\drawable\ic_circle_selected.xml">
+      <SubType></SubType>
+      <Generator></Generator>
+    </AndroidResource>
+    <AndroidResource Include="Resources\drawable\ic_delete.xml">
       <SubType></SubType>
       <Generator></Generator>
     </AndroidResource>

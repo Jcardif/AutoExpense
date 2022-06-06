@@ -28,7 +28,7 @@ namespace AutoExpense.Android.Services
         }
 
         public void SaveTransactionPrediction(TPrediction tPrediction) => DatabaseConnection.Insert(tPrediction);
-        public void DeleteTransactionPrediction(TPrediction tPrediction) => DatabaseConnection.Delete(tPrediction);
+        public void DeleteTransactionPrediction(TPrediction tPrediction) => DatabaseConnection.Delete<TPrediction>(tPrediction);
         public List<TPrediction> GetTransactionPredictions() => DatabaseConnection.Table<TPrediction>().ToList();
     }
 }

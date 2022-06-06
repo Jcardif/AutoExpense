@@ -13,7 +13,7 @@ namespace AutoExpense.Android.Models
 {
     public class LocalTransaction
     {
-        public LocalTransaction(string messageSender, long date, TransactionType? transactionType, double? amount, double? transactionCost, string code, string principal, string body, string threadId, string id)
+        public LocalTransaction(string messageSender, long date, TransactionType? transactionType, double? amount, double? transactionCost, string code, string principal, string body, string threadId, string id, bool isSelected)
         {
             MessageSender = messageSender;
             Date = date;
@@ -25,6 +25,7 @@ namespace AutoExpense.Android.Models
             Body = body;
             ThreadId = threadId;
             Id = id;
+            IsSelected = isSelected;
         }
 
         public string MessageSender { get; set; }
@@ -37,6 +38,7 @@ namespace AutoExpense.Android.Models
         public string Body { get; set; }
         public string ThreadId { get; set; }
         public string Id { get; set; }
+        public bool IsSelected { get; set; }
 
     }
 

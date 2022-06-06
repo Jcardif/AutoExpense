@@ -315,12 +315,12 @@
 	<ProgressBar
 		android:id="@+id/syncing_progress_bar"
 		android:visibility="gone"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
 		app:layout_constraintStart_toStartOf="@id/controls_constraint_layout"
 		app:layout_constraintEnd_toEndOf="@id/controls_constraint_layout"
 		app:layout_constraintTop_toBottomOf="@id/controls_constraint_layout"
-		android:indeterminate="true"		
+		android:indeterminate="true"
 		android:layout_marginTop="@dimen/margin_padding_size_medium"
 		style="?android:attr/progressBarStyleHorizontal"/>
 
@@ -365,6 +365,16 @@
 			android:layout_height="24dp"
 			android:src="@drawable/ic_sort"
 			app:layout_constraintEnd_toStartOf="@+id/right_inner_guideline"
+			app:layout_constraintTop_toTopOf="@+id/textView4" />
+
+		<ImageView
+			android:id="@+id/delete_imageView"
+			android:visibility="gone"
+			android:layout_width="24dp"
+			android:layout_height="24dp"
+			android:src="@drawable/ic_delete"
+			android:layout_marginRight="30dp"
+			app:layout_constraintEnd_toStartOf="@+id/sort_imageView"
 			app:layout_constraintTop_toTopOf="@+id/textView4" />
 
 		<androidx.recyclerview.widget.RecyclerView

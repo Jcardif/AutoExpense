@@ -30,7 +30,7 @@ using Android.Icu.Text;
 namespace AutoExpense.Android.Activities
 {
     [Activity(Label = "@string/app_name", Theme = "@style/AppTheme", MainLauncher = true)]
-    public class MainActivity : AppCompatActivity, ISendersManager
+    public class MainActivity : AppCompatActivity, ISendersManager, IItemClickListener
     {
         private RecyclerView? transactionsRecyclerView;
         private TextView? timeOfDayTextView, nameTextView, totalMessagesTextView, syncedMessagesTextView;
@@ -47,12 +47,15 @@ namespace AutoExpense.Android.Activities
         public YnabDataService YnabDataService { get; set; }
         private ProgressBar? syncingProgressBar;
         private CardView? ynabCardView;
+        private ImageView deleteTransactionImageview;
 
         private string ynabAccessToken;
         private string endpointUrl;
         private bool saveToYnab;
         private string luisAppId;
         private string luisSubscriptionKey;
+
+        public bool InSelectionMode { get; set; } = false;
 
         protected override void OnCreate(Bundle? savedInstanceState)
         {
@@ -81,6 +84,7 @@ namespace AutoExpense.Android.Activities
             settingsImageView = FindViewById<ImageView>(Resource.Id.settings_imageView);
             syncingProgressBar = FindViewById<ProgressBar>(Resource.Id.syncing_progress_bar);
             ynabCardView = FindViewById<CardView>(Resource.Id.ynab_card);
+            deleteTransactionImageview = FindViewById<ImageView>(Resource.Id.delete_imageView);
 
             timeOfDayTextView.Text=GetTimeofDay();
 
@@ -88,7 +92,7 @@ namespace AutoExpense.Android.Activities
 
             LoadMessages();
 
-            transactionsAdapter = new TransactionsAdapter(DisplayedTransactions);
+            transactionsAdapter = new TransactionsAdapter(DisplayedTransactions, this);
             transactionsRecyclerView?.SetAdapter(transactionsAdapter);
 
             GetAppSettings();
@@ -100,6 +104,7 @@ namespace AutoExpense.Android.Activities
             settingsImageView.Click += SettingsImageView_Click;
             syncButton.Click += SyncButton_Click;
             ynabCardView.Click += async (s, e) => await ShowYnabBottomSheetDialog();
+            deleteTransactionImageview.Click += DeleteTransactionImageview_Click;
         }
 
         private void GetAppSettings()
@@ -291,7 +296,7 @@ namespace AutoExpense.Android.Activities
                     if (tPrediction is null)
                     {
                         var transaction = new LocalTransaction(message.Address, message.Date, null, null, null, null, null,
-                            message.Body, message.ThreadId, message.Id);
+                            message.Body, message.ThreadId, message.Id, false);
                         
                         DisplayedTransactions.Add(transaction);
                         transactionsAdapter?.NotifyItemInserted(DisplayedTransactions.Count - 1);
@@ -300,7 +305,7 @@ namespace AutoExpense.Android.Activities
                     else
                     {
                         var transaction = new LocalTransaction(tPrediction.MessageSender, message.Date, tPrediction.TransactionType, tPrediction.Amount, tPrediction.TransactionCost, tPrediction.Code, tPrediction.Principal,
-                            message.Body, message.ThreadId, message.Id);
+                            message.Body, message.ThreadId, message.Id, false);
 
                         DisplayedTransactions.Add(transaction);
                         transactionsAdapter?.NotifyItemInserted(DisplayedTransactions.Count - 1);
@@ -403,7 +408,7 @@ namespace AutoExpense.Android.Activities
                 if (SelectSenders.Contains(message.Address))
                 {
                     var transaction = new LocalTransaction(message.Address, message.Date, null, null, null, null, null,
-                        message.Body, message.ThreadId, message.Id);
+                        message.Body, message.ThreadId, message.Id, false);
 
                     DisplayedTransactions.Add(transaction);
                 }
@@ -502,6 +507,70 @@ namespace AutoExpense.Android.Activities
         public void SenderRemoved(string sender)
         {
             SelectSenders.Remove(sender);
+        }
+
+        public void OnItemClick(View itemView, int position, bool isLongClick)
+        {
+            var transaction = DisplayedTransactions[position];
+            if (transaction.IsSelected)
+            {
+                if (isLongClick)
+                    return;
+                else
+                {
+                    DisplayedTransactions[position].IsSelected = false;
+                    transactionsAdapter?.NotifyItemChanged(position);
+                }
+            }
+            else
+            {
+                if (isLongClick)
+                {
+                    InSelectionMode = true;
+                    DisplayedTransactions[position].IsSelected = true;
+                    transactionsAdapter?.NotifyItemChanged(position);
+                }
+
+                else
+                {
+                    if(InSelectionMode)
+                    {
+                        DisplayedTransactions[position].IsSelected = true;
+                        transactionsAdapter?.NotifyItemChanged(position);
+                    }
+                    return;
+                }
+            }
+
+            InSelectionMode = DisplayedTransactions.Any(t => t.IsSelected);
+
+            if (InSelectionMode)
+                deleteTransactionImageview.Visibility = ViewStates.Visible;
+            else
+                deleteTransactionImageview.Visibility = ViewStates.Gone;
+            
+        }
+
+        private async void DeleteTransactionImageview_Click(object sender, EventArgs e)
+        {
+            syncingProgressBar.Visibility = ViewStates.Visible;
+            var selectedTransactions = DisplayedTransactions.Where(t => t.IsSelected).ToList();
+            var rawTransactions = await FirebaseDatabaseService.GetRawItemsAsync<TPrediction>(TPREDICTION_CHILD_NAME);
+
+            foreach (var transaction in selectedTransactions)
+            {
+                var traw = rawTransactions.FirstOrDefault(t => t.Object.Code == transaction.Code);
+                if (traw is null)
+                {
+                    continue;
+                }
+
+                await FirebaseDatabaseService.DeleteItemAsync(TPREDICTION_CHILD_NAME, traw.Key);
+                
+            }
+
+            syncingProgressBar.Visibility = ViewStates.Gone;
+
         }
     }
 }

@@ -5,6 +5,10 @@ VisualStudioVersion = 17.1.32228.430
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoExpense.Android", "AutoExpense.Android\AutoExpense.Android.csproj", "{EF62764A-42F1-434A-8F9B-C5D29D9D7C96}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoExpense.syncServer", "AutoExpense.syncServer\AutoExpense.syncServer.csproj", "{42185174-BB0E-4447-807F-5E9F7DF20037}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoExpense.PCL", "AutoExpense.PCL\AutoExpense.PCL.csproj", "{0D4F6F1A-E740-42BF-9853-03345F3BEB3C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -17,6 +21,14 @@ Global
 		{EF62764A-42F1-434A-8F9B-C5D29D9D7C96}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EF62764A-42F1-434A-8F9B-C5D29D9D7C96}.Release|Any CPU.Build.0 = Release|Any CPU
 		{EF62764A-42F1-434A-8F9B-C5D29D9D7C96}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{42185174-BB0E-4447-807F-5E9F7DF20037}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{42185174-BB0E-4447-807F-5E9F7DF20037}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{42185174-BB0E-4447-807F-5E9F7DF20037}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{42185174-BB0E-4447-807F-5E9F7DF20037}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0D4F6F1A-E740-42BF-9853-03345F3BEB3C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D4F6F1A-E740-42BF-9853-03345F3BEB3C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D4F6F1A-E740-42BF-9853-03345F3BEB3C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D4F6F1A-E740-42BF-9853-03345F3BEB3C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
