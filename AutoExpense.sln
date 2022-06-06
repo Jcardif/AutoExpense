@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoExpense.syncServer", "A
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoExpense.PCL", "AutoExpense.PCL\AutoExpense.PCL.csproj", "{0D4F6F1A-E740-42BF-9853-03345F3BEB3C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoExpense.SyncServer", "AutoExpense.SyncServer\AutoExpense.SyncServer.csproj", "{C650CA59-F296-4256-9CFE-03AA4DFBCA94}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,6 +31,10 @@ Global
 		{0D4F6F1A-E740-42BF-9853-03345F3BEB3C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0D4F6F1A-E740-42BF-9853-03345F3BEB3C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0D4F6F1A-E740-42BF-9853-03345F3BEB3C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C650CA59-F296-4256-9CFE-03AA4DFBCA94}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C650CA59-F296-4256-9CFE-03AA4DFBCA94}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C650CA59-F296-4256-9CFE-03AA4DFBCA94}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C650CA59-F296-4256-9CFE-03AA4DFBCA94}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
