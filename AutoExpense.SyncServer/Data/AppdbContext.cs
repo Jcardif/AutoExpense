@@ -1,4 +1,4 @@
-using AutoExpense.SyncServer.Db;
+using AutoExpense.SyncServer.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace AutoExpense.SyncServer.Data
@@ -10,9 +10,9 @@ namespace AutoExpense.SyncServer.Data
         }
 
         /// <summary>
-        /// The dataset for the TodoItems.
+        /// The dataset for the Transactions.
         /// </summary>
-        public DbSet<TodoItem> TodoItems => Set<TodoItem>();
+        public DbSet<Transaction> Transactions => Set<Transaction>();
 
         /// <summary>
         /// Do any database initialization required.

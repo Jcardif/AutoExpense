@@ -1,10 +1,9 @@
 using AutoExpense.SyncServer.Data;
 using Microsoft.AspNetCore.Datasync;
 using Microsoft.EntityFrameworkCore;
-using AutoExpense.SyncServer.Db;
 
 var builder = WebApplication.CreateBuilder(args);
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+var connectionString = builder.Configuration.GetConnectionString("RemoteConnection");
 
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connectionString));
 builder.Services.AddDatasyncControllers();
