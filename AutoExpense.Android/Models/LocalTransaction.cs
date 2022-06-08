@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using AutoExpense.Shared.Helpers;
 
 namespace AutoExpense.Android.Models
 {
@@ -39,14 +40,6 @@ namespace AutoExpense.Android.Models
         public string ThreadId { get; set; }
         public string Id { get; set; }
         public bool IsSelected { get; set; }
-
-    }
-
-    public enum TransactionType
-    {
-        CashOutflow,
-        CashInflow,
-        Fuliza
 
     }
 }

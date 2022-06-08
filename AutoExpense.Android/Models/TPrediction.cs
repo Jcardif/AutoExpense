@@ -8,10 +8,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using AutoExpense.Shared.Helpers;
+using AutoExpense.Shared.Interfaces;
 
 namespace AutoExpense.Android.Models
 {
-    public class TPrediction
+    public class TPrediction : ITransactionPrediction
     {
         public TPrediction(string threadId, string id, long date, string messageSender, TransactionType? transactionType, double? amount, double? transactionCost, string code, string principal, YnabSyncStatus ynabSyncStatus)
         {
@@ -32,6 +34,7 @@ namespace AutoExpense.Android.Models
             
         }
 
+
         public string ThreadId { get; set; }
         public string Id { get; set; }
         public long Date { get; set; }
@@ -44,10 +47,5 @@ namespace AutoExpense.Android.Models
         public YnabSyncStatus YnabSyncStatus { get; set; }
     }
 
-    public enum YnabSyncStatus
-    {
-        Skipped,
-        Synced,
-        NotSynced
-    }
+
 }

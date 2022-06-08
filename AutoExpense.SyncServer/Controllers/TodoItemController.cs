@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Datasync;
+using AutoExpense.SyncServer.Data;
+using Microsoft.AspNetCore.Datasync;
 using Microsoft.AspNetCore.Datasync.EFCore;
 using Microsoft.AspNetCore.Mvc;
 using AutoExpense.SyncServer.Db;

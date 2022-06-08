@@ -1,6 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+using AutoExpense.SyncServer.Db;
+using Microsoft.EntityFrameworkCore;
 
-namespace AutoExpense.SyncServer.Db
+namespace AutoExpense.SyncServer.Data
 {
     public class AppDbContext : DbContext
     {

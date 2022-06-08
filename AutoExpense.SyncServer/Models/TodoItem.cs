@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Datasync.EFCore;
+using Microsoft.AspNetCore.Datasync.EFCore;
 using System.ComponentModel.DataAnnotations;
 
 namespace AutoExpense.SyncServer.Db
