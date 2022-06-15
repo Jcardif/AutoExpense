@@ -18,4 +18,9 @@ namespace AutoExpense.Shared.Helpers
         Fuliza
 
     }
+
+    /// <summary>
+    /// The list of possible actions.
+    /// </summary>
+    public enum ListAction { Add, Delete, Update };
 }

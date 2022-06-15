@@ -9,12 +9,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using AutoExpense.Shared.Helpers;
+using AutoExpense.Shared.Interfaces;
 
 namespace AutoExpense.Android.Models
 {
-    public class LocalTransaction
+    public class LocalTransaction 
     {
-        public LocalTransaction(string messageSender, long date, TransactionType? transactionType, double? amount, double? transactionCost, string code, string principal, string body, string threadId, string id, bool isSelected)
+        public LocalTransaction(string messageSender, long date, TransactionType? transactionType, double? amount, 
+            double? transactionCost, string code, string principal, string body, string threadId, string id,
+            bool isSelected, bool isInDatabase, string messageHash)
         {
             MessageSender = messageSender;
             Date = date;
@@ -27,6 +30,8 @@ namespace AutoExpense.Android.Models
             ThreadId = threadId;
             Id = id;
             IsSelected = isSelected;
+            IsInDatabase = isInDatabase;
+            MessageHash = messageHash;
         }
 
         public string MessageSender { get; set; }
@@ -36,10 +41,12 @@ namespace AutoExpense.Android.Models
         public double? TransactionCost { get; set; }
         public string Code { get; set; }
         public string Principal { get; set; }
+        public string MessageHash { get; set; }
         public string Body { get; set; }
         public string ThreadId { get; set; }
         public string Id { get; set; }
         public bool IsSelected { get; set; }
+        public bool IsInDatabase { get; set; }
 
     }
 }

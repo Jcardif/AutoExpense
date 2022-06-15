@@ -26,5 +26,10 @@ namespace AutoExpense.Android.Helpers
         public static string LUIS_APP_CONFIG_CHILD_NAME = "LuisConfig";
 
         public static string YNAB_SYNC_BUDGET_ID="YnabSyncBudgetId";
+
+        /// <summary>
+        /// The base URI for the DataSync service.
+        /// </summary>
+        public static string BackendUrl = "https://autoexpense.azurewebsites.net";
     }
 }

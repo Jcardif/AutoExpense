@@ -16,5 +16,6 @@ namespace AutoExpense.SyncServer.Models
         public string Code { get; set; }
         public string Principal { get; set; }
         public YnabSyncStatus YnabSyncStatus { get; set; }
+        public string MessageHash { get; set; }
     }
 }

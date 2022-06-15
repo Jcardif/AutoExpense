@@ -27,6 +27,7 @@ using Android.Graphics;
 using Path = System.IO.Path;
 using Android.Icu.Text;
 using AutoExpense.Shared.Helpers;
+using static  AutoExpense.Android.Extensions.ExtensionMethods;
 
 namespace AutoExpense.Android.Activities
 {
@@ -43,8 +44,8 @@ namespace AutoExpense.Android.Activities
         public List<string>? senders { get; set; }
         public List<string> SelectSenders { get; set; }=new List<string>();
         public List<LocalTransaction> DisplayedTransactions { get; set; } = new List<LocalTransaction>();
-        public LocalDatabaseService? dbService { get; set; }
-        public FirebaseDatabaseService FirebaseDatabaseService { get; set; }
+        public SyncService RemoteTransactionService { get; set; }
+
         public YnabDataService YnabDataService { get; set; }
         private ProgressBar? syncingProgressBar;
         private CardView? ynabCardView;
@@ -58,19 +59,14 @@ namespace AutoExpense.Android.Activities
 
         public bool InSelectionMode { get; set; } = false;
 
-        protected override void OnCreate(Bundle? savedInstanceState)
+        protected override async void OnCreate(Bundle? savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
             Platform.Init(this, savedInstanceState);
             Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("NjA1MjQxQDMyMzAyZTMxMmUzMExxQjBrWW1zcW83ZUQ0UFJ6VTNnOTRQdnRrTUpZOXlFa2VFUGVVdWxhSGs9");
             AppCenter.Start("7e7c2c36-1ea9-499e-8d3f-96158e8924f8", typeof(Analytics), typeof(Crashes));
 
-            var path = Path.Combine(
-                System.Environment.GetFolderPath(System.Environment.SpecialFolder.LocalApplicationData),
-                "AutoExpense.db3");
-
-            dbService = new LocalDatabaseService(path);
-            FirebaseDatabaseService = new FirebaseDatabaseService(this);
+            RemoteTransactionService = new SyncService();
 
             // Set our view from the "main" layout resource
             SetContentView(Resource.Layout.activity_main);
@@ -91,7 +87,8 @@ namespace AutoExpense.Android.Activities
 
             RequestPermissions(new string[] { Manifest.Permission.ReadSms }, 0);
 
-            LoadMessages();
+            messages = GetAllSms();
+            await DisplayMessages();
 
             transactionsAdapter = new TransactionsAdapter(DisplayedTransactions, this);
             transactionsRecyclerView?.SetAdapter(transactionsAdapter);
@@ -145,28 +142,27 @@ namespace AutoExpense.Android.Activities
             syncingProgressBar.Enabled = true;
 
             var luisPredictionService = new LuisPredictionService(luisAppId, luisSubscriptionKey, endpointUrl);
+
             var temps = DisplayedTransactions.Select(d => d).ToList();
-            foreach (var transaction in temps)
+
+            foreach (var localTransaction in temps)
             {
-                if (transaction.Amount != null)
+                if (localTransaction.IsInDatabase)
                     continue;
 
-                var prediction= await luisPredictionService.GetPrediction(transaction.Body);
+                var prediction = await luisPredictionService.GetPrediction(localTransaction.Body);
                 if (prediction is null)
-                {
                     continue;
-                }
 
-                if (prediction.Prediction.TopIntent == "CashOutflow" || prediction.Prediction.TopIntent == "CashInflow" || prediction.Prediction.TopIntent== "Fuliza")
+                if (prediction.Prediction.TopIntent is "CashOutflow" or "CashInflow" or "Fuliza")
                 {
-
                     var transactionType =
-                        (TransactionType) Enum.Parse(typeof(TransactionType), prediction.Prediction.TopIntent);
+                        (TransactionType)Enum.Parse(typeof(TransactionType), prediction.Prediction.TopIntent);
 
-                    var index = temps.IndexOf(transaction);
+                    var index = temps.IndexOf(localTransaction);
 
-                    var stringAmt = prediction.Prediction.Entities.Amount?.FirstOrDefault()?.Trim().Remove(0,3);
-                    if(string.IsNullOrEmpty(stringAmt))
+                    var stringAmt = prediction.Prediction.Entities.Amount?.FirstOrDefault()?.Trim().Remove(0, 3);
+                    if (string.IsNullOrEmpty(stringAmt))
                         continue;
 
                     if (prediction.Prediction.Entities.TransactionCost != null)
@@ -180,7 +176,7 @@ namespace AutoExpense.Android.Activities
                     if (principal != null)
                     {
                         DisplayedTransactions[index].MessageSender = principal.FirstOrDefault() ?? string.Empty;
-                        DisplayedTransactions[index].Principal = prediction.Prediction.Entities.Principal.FirstOrDefault() ?? string.Empty;
+                        DisplayedTransactions[index].Principal = (prediction.Prediction.Entities.Principal ?? new List<string>()).FirstOrDefault() ?? string.Empty;
                     }
 
                     DisplayedTransactions[index].Amount = float.Parse(stringAmt ?? string.Empty);
@@ -189,70 +185,77 @@ namespace AutoExpense.Android.Activities
 
                     transactionsAdapter?.NotifyItemChanged(index);
 
-                    if(saveToYnab is false)
+                    if (saveToYnab is false)
                     {
-                        var tPrediction = new TPrediction(transaction.ThreadId, transaction.Id, transaction.Date, transaction.MessageSender,
-                            transaction.TransactionType, transaction.Amount, transaction.TransactionCost, transaction.Code, transaction.Principal, YnabSyncStatus.Skipped);
-                        await FirebaseDatabaseService.AddItemAsync<TPrediction>(tPrediction, TPREDICTION_CHILD_NAME);
-                        dbService?.SaveTransactionPrediction(tPrediction);
-                    }
+                        var syncTransaction = new SyncTransaction(localTransaction.ThreadId, localTransaction.Date,
+                            localTransaction.MessageSender,
+                            localTransaction.TransactionType, localTransaction.Amount, localTransaction.TransactionCost,
+                            localTransaction.Code, localTransaction.Principal, YnabSyncStatus.Skipped,
+                            localTransaction.MessageHash);
 
+                        syncTransaction.Id = localTransaction.MessageHash.Substring(0, 8);
+
+                        await RemoteTransactionService.SaveItemAsync(syncTransaction);
+                        await RemoteTransactionService.RefreshItemsAsync();
+                    }
 
                     else
                     {
-                        var tPrediction = new TPrediction(transaction.ThreadId, transaction.Id, transaction.Date, transaction.MessageSender,
-                            transaction.TransactionType, transaction.Amount, transaction.TransactionCost, transaction.Code, transaction.Principal, YnabSyncStatus.Synced);
+                        var syncTransaction = new SyncTransaction(localTransaction.ThreadId, localTransaction.Date,
+                            localTransaction.MessageSender,
+                            localTransaction.TransactionType, localTransaction.Amount, localTransaction.TransactionCost,
+                            localTransaction.Code, localTransaction.Principal,
+                            YnabSyncStatus.Synced, localTransaction.MessageHash);
 
-                        await FirebaseDatabaseService.AddItemAsync<TPrediction>(tPrediction, TPREDICTION_CHILD_NAME);
-                        dbService?.SaveTransactionPrediction(tPrediction);
+                        syncTransaction.Id = localTransaction.MessageHash.Substring(0, 8);
 
+                        await RemoteTransactionService.SaveItemAsync(syncTransaction);
+                        await RemoteTransactionService.RefreshItemsAsync();
 
                         YnabDataService = new YnabDataService(ynabAccessToken);
 
-                        var date = new SimpleDateFormat("YYYY-MM-dd").Format(transaction.Date); 
+                        var date = new SimpleDateFormat("YYYY-MM-dd").Format(localTransaction.Date);
                         var subTransactions = new List<Subtransaction>();
-                        var memo = transaction.Body.Length > 200 ? transaction.Body.Substring(0, 200) : transaction.Body;
-                        var amount = transaction.TransactionType == TransactionType.Fuliza || transaction.TransactionType == TransactionType.CashOutflow ? transaction.Amount * -1 : transaction.Amount;
+                        var memo = localTransaction.Body.Length > 200 ? localTransaction.Body.Substring(0, 200) : localTransaction.Body;
+                        var amount =
+                            localTransaction.TransactionType == TransactionType.Fuliza ||
+                            localTransaction.TransactionType == TransactionType.CashOutflow
+                                ? localTransaction.Amount * -1
+                                : localTransaction.Amount;
                         var amt = (int)Math.Round(amount ?? 0) * 1000;
 
                         var budgetId = Preferences.Get(YNAB_SYNC_BUDGET_ID, null);
-                        var mpesaAccountId = budgetId == "59da31b6-115c-42c5-b5bc-97dfa8b2fe1c" ? "675d0b58-4359-4ef8-a19e-35fc9b2a2458" : "6622a12a-5d30-4eb4-baff-d780e059793c";
+                        var mpesaAccountId = budgetId == "59da31b6-115c-42c5-b5bc-97dfa8b2fe1c"
+                            ? "675d0b58-4359-4ef8-a19e-35fc9b2a2458"
+                            : "6622a12a-5d30-4eb4-baff-d780e059793c";
 
-                        if (transaction.TransactionCost != null && transaction.TransactionCost != 0)
+                        if (localTransaction.TransactionCost != null && localTransaction.TransactionCost != 0)
                         {
-                            var tcost = (int)Math.Round(transaction.TransactionCost * -1000 ?? 0);
+                            var tcost = (int)Math.Round(localTransaction.TransactionCost * -1000 ?? 0);
                             var subTransactionCost = new Subtransaction(tcost, null, "Safaricom Transaction Costs", null, memo);
                             subTransactions.Add(subTransactionCost);
 
-                            var subTransactionAmt = new Subtransaction(amt, null, transaction.Principal, null, memo);
+                            var subTransactionAmt = new Subtransaction(amt, null, localTransaction.Principal, null, memo);
                             subTransactions.Add(subTransactionAmt);
 
                             amt += tcost;
 
-                            var trnsn1 = new Transaction(mpesaAccountId, date, amt, null, transaction.Principal, null, null, "cleared", true, null, null, subTransactions);
+                            var trnsn1 = new Transaction(mpesaAccountId, date, amt, null, localTransaction.Principal, null, null, "cleared", true, null, null, subTransactions);
                             var ynabTransaction1 = new YnabTransaction(trnsn1);
 
-                     
+
                             await YnabDataService.SaveTransactionAsync(ynabTransaction1, budgetId);
                             continue;
                         }
 
-                        var trnsn = new Transaction(mpesaAccountId, date, amt, null, transaction.Principal, null, memo, "cleared", true, null, null, subTransactions);
+                        var trnsn = new Transaction(mpesaAccountId, date, amt, null, localTransaction.Principal, null, memo, "cleared", true, null, null, subTransactions);
                         var ynabTransaction = new YnabTransaction(trnsn);
 
                         await YnabDataService.SaveTransactionAsync(ynabTransaction, budgetId);
-
                     }
-                    
-
-
-                }
-
-                else
-                {
-                    continue;
                 }
             }
+
 
             syncButton.Enabled = true;
             syncingProgressBar.Visibility = ViewStates.Gone;
@@ -264,61 +267,18 @@ namespace AutoExpense.Android.Activities
            StartActivity(typeof(SettingsActivity));
         }
 
-        private async Task LoadMessages()
+        private List<SMS> FilterMessagesBySenders()
         {
             messages = GetAllSms();
-
-            var tPredictionsRemote = await FirebaseDatabaseService.GetItemsAsync<TPrediction>(TPREDICTION_CHILD_NAME);
-            var tPredictions = dbService?.GetTransactionPredictions();
-            foreach(var tpr in tPredictionsRemote)
-            {
-                if (tPredictions.Any(tp => tp.Code == tpr.Code))
-                    continue;
-                dbService.SaveTransactionPrediction(tpr);
-            }
-
-
 
             var sendersString = Preferences.Get(SENDERS_LIST, null);
             SelectSenders = string.IsNullOrEmpty(sendersString)
                 ? new List<string>()
                 : sendersString.Split(",").Where(s => !string.IsNullOrEmpty(s)).Distinct().ToList();
 
-
-            tPredictions = dbService.GetTransactionPredictions();
-
-            foreach (var message in messages)
-            {
-                if (SelectSenders.Contains(message.Address))
-                {
-                    var tPrediction =
-                        tPredictions.FirstOrDefault(t => t.Id == message.Id && t.ThreadId == message.ThreadId);
-
-                    if (tPrediction is null)
-                    {
-                        var transaction = new LocalTransaction(message.Address, message.Date, null, null, null, null, null,
-                            message.Body, message.ThreadId, message.Id, false);
-                        
-                        DisplayedTransactions.Add(transaction);
-                        transactionsAdapter?.NotifyItemInserted(DisplayedTransactions.Count - 1);
-                        continue;
-                    }
-                    else
-                    {
-                        var transaction = new LocalTransaction(tPrediction.MessageSender, message.Date, tPrediction.TransactionType, tPrediction.Amount, tPrediction.TransactionCost, tPrediction.Code, tPrediction.Principal,
-                            message.Body, message.ThreadId, message.Id, false);
-
-                        DisplayedTransactions.Add(transaction);
-                        transactionsAdapter?.NotifyItemInserted(DisplayedTransactions.Count - 1);
-                        continue;
-                    }
-
-
-                }
-            }
-
+            return messages.Where(m => sendersString.Contains(m.Address)).ToList();
         }
-
+        
         private void UpdateStatusCard()
         {
             totalMessagesTextView.Text = DisplayedTransactions.Count.ToString();
@@ -328,6 +288,7 @@ namespace AutoExpense.Android.Activities
 
         private void SendersButton_Click(object sender, EventArgs e)
         {
+            messages = GetAllSms();
             senders = messages?.Where(s => !s.Address.StartsWith("+")).Select(s => s.Address).Distinct().ToList();
 
             
@@ -349,6 +310,8 @@ namespace AutoExpense.Android.Activities
 
         private async Task ShowYnabBottomSheetDialog()
         {
+            GetAppSettings();
+
             if (string.IsNullOrEmpty(luisAppId) || string.IsNullOrEmpty(luisSubscriptionKey) || string.IsNullOrEmpty(ynabAccessToken) || string.IsNullOrEmpty(endpointUrl))
             {
                 StartActivity(typeof(SettingsActivity));
@@ -390,7 +353,41 @@ namespace AutoExpense.Android.Activities
             bottomSheetDialog.Show();
         }
 
-        private void UpdateButton_Click(object sender, EventArgs e)
+        private async Task DisplayMessages()
+        {
+            messages = FilterMessagesBySenders();
+
+            var transactions = await RemoteTransactionService.GetItemsAsync();
+            
+            foreach (var syncTransaction in transactions)
+            {
+
+                var transaction = new LocalTransaction(syncTransaction.MessageSender, syncTransaction.Date,
+                    syncTransaction.TransactionType, syncTransaction.Amount, syncTransaction.TransactionCost,
+                    syncTransaction.Code, syncTransaction.Principal, syncTransaction.MessageHash, syncTransaction.ThreadId, syncTransaction.Id,
+                    false, true, syncTransaction.MessageHash);
+
+                DisplayedTransactions.Add(transaction);
+                transactionsAdapter?.NotifyItemInserted(DisplayedTransactions.Count - 1);
+            }
+
+            foreach (var message in messages)
+            {
+                var messageBodyHash = message.Body.ToHashedStringValue();
+                var isInList = transactions.Any(t => t.MessageHash.Equals(messageBodyHash, StringComparison.Ordinal));
+
+                if (isInList)
+                    continue;
+
+                var transaction = new LocalTransaction(message.Address, message.Date, null, null, null, null, null,
+                    message.Body, message.ThreadId, message.Id, false, false, messageBodyHash);
+
+                DisplayedTransactions.Add(transaction);
+                transactionsAdapter?.NotifyItemInserted(DisplayedTransactions.Count - 1);
+            }
+        }
+
+        private async void UpdateButton_Click(object sender, EventArgs e)
         {
             var sendersString = string.Empty;
             foreach (var selectSender in SelectSenders)
@@ -403,25 +400,10 @@ namespace AutoExpense.Android.Activities
             Preferences.Set(SENDERS_LIST,sendersString );
 
             DisplayedTransactions.Clear();
+            
+            await DisplayMessages();
 
-            foreach (var message in messages)
-            {
-                if (SelectSenders.Contains(message.Address))
-                {
-                    var transaction = new LocalTransaction(message.Address, message.Date, null, null, null, null, null,
-                        message.Body, message.ThreadId, message.Id, false);
-
-                    DisplayedTransactions.Add(transaction);
-                }
-                else
-                {
-                    continue;
-                }
-
-            }
-
-            transactionsAdapter.NotifyDataSetChanged();
-            bottomSheetDialog.Dismiss();
+            bottomSheetDialog?.Dismiss();
 
             UpdateStatusCard();
         }
@@ -555,21 +537,8 @@ namespace AutoExpense.Android.Activities
         private async void DeleteTransactionImageview_Click(object sender, EventArgs e)
         {
             syncingProgressBar.Visibility = ViewStates.Visible;
-            var selectedTransactions = DisplayedTransactions.Where(t => t.IsSelected).ToList();
-            var rawTransactions = await FirebaseDatabaseService.GetRawItemsAsync<TPrediction>(TPREDICTION_CHILD_NAME);
 
-            foreach (var transaction in selectedTransactions)
-            {
-                var traw = rawTransactions.FirstOrDefault(t => t.Object.Code == transaction.Code);
-                if (traw is null)
-                {
-                    continue;
-                }
-
-                await FirebaseDatabaseService.DeleteItemAsync(TPREDICTION_CHILD_NAME, traw.Key);
-                
-            }
-
+            //Todo: handle deletion
             syncingProgressBar.Visibility = ViewStates.Gone;
 
         }
