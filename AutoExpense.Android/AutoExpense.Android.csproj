@@ -40,7 +40,7 @@
     <LangVersion>9</LangVersion>
     <Nullable>enable</Nullable>
     <AndroidKeyStore>True</AndroidKeyStore>
-    <AndroidSigningKeyStore>C:\Users\jndemenge\OneDrive\Documents\Company Docs\Legytt\DevelopmentTools\Android\AutoExpense\autoexpense_keystore</AndroidSigningKeyStore>
+    <AndroidSigningKeyStore>/Users/josh/Library/CloudStorage/OneDrive-Personal/Documents/Company Docs/Legytt/DevelopmentTools/Android/AutoExpense/autoexpense_keystore</AndroidSigningKeyStore>
     <AndroidSigningStorePass>SS4$LHtcG9M!DJJ?</AndroidSigningStorePass>
     <AndroidSigningKeyAlias>autoexpense-def-key</AndroidSigningKeyAlias>
     <AndroidSigningKeyPass>SS4$LHtcG9M!DJJ?</AndroidSigningKeyPass>
@@ -100,6 +100,7 @@
     <Compile Include="Models\YnabBudget.cs" />
     <Compile Include="Interfaces\ITransactionManager.cs" />
     <Compile Include="Interfaces\IItemClickListener.cs" />
+    <Compile Include="Models\ToDoItem.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\AboutResources.txt" />

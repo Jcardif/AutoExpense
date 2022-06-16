@@ -23,7 +23,8 @@ namespace AutoExpense.Android.Services
 
         private MobileServiceClient mClient;
         // private IMobileServiceTable<SyncTransaction> mTable;
-        private IMobileServiceSyncTable<SyncTransaction> mTable;
+        private IMobileServiceSyncTable<SyncTransaction> _transactionTable;
+        private IMobileServiceSyncTable<ToDoItem> _todoTable;
         // private MobileServiceSQLiteStore mStore;
 
         /// <summary>
@@ -43,10 +44,12 @@ namespace AutoExpense.Android.Services
                     var fileName = "autoexpense.db";
                     var store = new MobileServiceSQLiteStore(fileName);
                     store.DefineTable<SyncTransaction>();
+                    store.DefineTable<ToDoItem>();
 
                     await mClient.SyncContext.InitializeAsync(store);
 
-                    mTable = mClient.GetSyncTable<SyncTransaction>();
+                    _transactionTable = mClient.GetSyncTable<SyncTransaction>();
+                    _todoTable = mClient.GetSyncTable<ToDoItem>();
                     isInitialized = true;
                 }
             }
@@ -59,7 +62,7 @@ namespace AutoExpense.Android.Services
         public async Task<List<SyncTransaction>> GetItemsAsync()
         {
             await InitializeAsync();
-            return await mTable.ToListAsync();
+            return await _transactionTable.ToListAsync();
         }
 
         public async Task RefreshItemsAsync()
@@ -67,7 +70,7 @@ namespace AutoExpense.Android.Services
             await InitializeAsync();
 
             await mClient.SyncContext.PushAsync();
-            await mTable.PullAsync("allItems", mTable.CreateQuery());
+            await _transactionTable.PullAsync("allItems", _transactionTable.CreateQuery());
         }
 
         public Task RemoveItemAsync(SyncTransaction item)
@@ -78,7 +81,16 @@ namespace AutoExpense.Android.Services
         public async Task SaveItemAsync(SyncTransaction item)
         {
             await InitializeAsync();
-            await mTable.InsertAsync(item);
+
+            var todo = new ToDoItem();
+
+            await _todoTable.InsertAsync(todo);
+
+
+            item.Version = "1.0";
+            item.Deleted = false.ToString();
+
+            await _transactionTable.InsertAsync(item).ConfigureAwait(false);
             await RefreshItemsAsync();
         }
 

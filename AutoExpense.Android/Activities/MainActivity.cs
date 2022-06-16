@@ -272,10 +272,13 @@ namespace AutoExpense.Android.Activities
             messages = GetAllSms();
 
             var sendersString = Preferences.Get(SENDERS_LIST, null);
-            SelectSenders = string.IsNullOrEmpty(sendersString)
-                ? new List<string>()
-                : sendersString.Split(",").Where(s => !string.IsNullOrEmpty(s)).Distinct().ToList();
 
+            if(string.IsNullOrEmpty(sendersString))
+            {
+                return messages;
+            }
+
+            SelectSenders = sendersString.Split(",").Where(s => !string.IsNullOrEmpty(s)).Distinct().ToList();
             return messages.Where(m => sendersString.Contains(m.Address)).ToList();
         }
         
