@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using AutoExpense.Shared.Helpers;
-using AutoExpense.Shared.Interfaces;
 using Microsoft.WindowsAzure.MobileServices;
 
 namespace AutoExpense.Android.Models
@@ -18,7 +17,7 @@ namespace AutoExpense.Android.Models
     /// The model that is for the Transaction pulled from the service.  This must
     /// match what is coming from the service.
     /// </summary>
-    public class SyncTransaction : ITransactionPrediction
+    public class SyncTransaction
     {
         public SyncTransaction(string threadId, long date, string messageSender, TransactionType? transactionType,
             double? amount, double? transactionCost, string code, string principal, YnabSyncStatus ynabSyncStatus,

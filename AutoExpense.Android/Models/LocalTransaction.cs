@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using AutoExpense.Shared.Helpers;
-using AutoExpense.Shared.Interfaces;
 
 namespace AutoExpense.Android.Models
 {

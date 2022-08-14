@@ -7,8 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoExpense.Android", "Auto
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "AutoExpense.Shared", "AutoExpense.Shared\AutoExpense.Shared.shproj", "{21B69340-8751-4DE0-B320-1ED9636714EB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AutoExpense.SyncServer", "AutoExpense.SyncServer\AutoExpense.SyncServer.csproj", "{60DC7038-FF34-4902-BF88-F6FA724DFAA8}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,10 +19,6 @@ Global
 		{EF62764A-42F1-434A-8F9B-C5D29D9D7C96}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EF62764A-42F1-434A-8F9B-C5D29D9D7C96}.Release|Any CPU.Build.0 = Release|Any CPU
 		{EF62764A-42F1-434A-8F9B-C5D29D9D7C96}.Release|Any CPU.Deploy.0 = Release|Any CPU
-		{60DC7038-FF34-4902-BF88-F6FA724DFAA8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{60DC7038-FF34-4902-BF88-F6FA724DFAA8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{60DC7038-FF34-4902-BF88-F6FA724DFAA8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{60DC7038-FF34-4902-BF88-F6FA724DFAA8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -34,7 +28,6 @@ Global
 	EndGlobalSection
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		AutoExpense.Shared\AutoExpense.Shared.projitems*{21b69340-8751-4de0-b320-1ed9636714eb}*SharedItemsImports = 13
-		AutoExpense.Shared\AutoExpense.Shared.projitems*{60dc7038-ff34-4902-bf88-f6fa724dfaa8}*SharedItemsImports = 5
 		AutoExpense.Shared\AutoExpense.Shared.projitems*{ef62764a-42f1-434a-8f9b-c5d29d9d7c96}*SharedItemsImports = 4
 	EndGlobalSection
 EndGlobal

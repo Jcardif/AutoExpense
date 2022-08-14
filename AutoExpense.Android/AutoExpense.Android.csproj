@@ -40,10 +40,11 @@
     <LangVersion>9</LangVersion>
     <Nullable>enable</Nullable>
     <AndroidKeyStore>True</AndroidKeyStore>
-    <AndroidSigningKeyStore>/Users/josh/Library/CloudStorage/OneDrive-Personal/Documents/Company Docs/Legytt/DevelopmentTools/Android/AutoExpense/autoexpense_keystore</AndroidSigningKeyStore>
+    <AndroidSigningKeyStore>C:\Users\jndemenge\OneDrive\Documents\Company Docs\Legytt\DevelopmentTools\Android\AutoExpense\autoexpense_keystore</AndroidSigningKeyStore>
     <AndroidSigningStorePass>SS4$LHtcG9M!DJJ?</AndroidSigningStorePass>
     <AndroidSigningKeyAlias>autoexpense-def-key</AndroidSigningKeyAlias>
     <AndroidSigningKeyPass>SS4$LHtcG9M!DJJ?</AndroidSigningKeyPass>
+    <MandroidI18n />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>True</DebugSymbols>
@@ -60,7 +61,7 @@
     <LangVersion>9</LangVersion>
     <Nullable>enable</Nullable>
     <AndroidKeyStore>True</AndroidKeyStore>
-    <AndroidSigningKeyStore>/Users/josh/Library/CloudStorage/OneDrive-Personal/Documents/Company Docs/Legytt/DevelopmentTools/Android/AutoExpense/autoexpense_keystore</AndroidSigningKeyStore>
+    <AndroidSigningKeyStore>C:\Users\jndemenge\OneDrive\Documents\Company Docs\Legytt\DevelopmentTools\Android\AutoExpense\autoexpense_keystore</AndroidSigningKeyStore>
     <AndroidSigningStorePass>SS4$LHtcG9M!DJJ?</AndroidSigningStorePass>
     <AndroidSigningKeyAlias>autoexpense-def-key</AndroidSigningKeyAlias>
     <AndroidSigningKeyPass>SS4$LHtcG9M!DJJ?</AndroidSigningKeyPass>
@@ -83,24 +84,17 @@
     <Compile Include="Extensions\ExtensionMethods.cs" />
     <Compile Include="Interfaces\ISendersManager.cs" />
     <Compile Include="Activities\MainActivity.cs" />
-    <Compile Include="Interfaces\ITransactionService.cs" />
     <Compile Include="Models\AppConfig.cs" />
     <Compile Include="Models\LuisPrediction.cs" />
     <Compile Include="Models\SMS.cs" />
     <Compile Include="Models\SyncTransaction.cs" />
     <Compile Include="Models\LocalTransaction.cs" />
-    <Compile Include="Events\TransactionServiceEventArgs.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Services\LoggingHandler.cs" />
-    <Compile Include="Services\LuisPredictionService.cs" />
     <Compile Include="Models\YnabTransaction.cs" />
-    <Compile Include="Services\SyncService.cs" />
-    <Compile Include="Services\YnabDataService.cs" />
     <Compile Include="Models\YnabBudget.cs" />
     <Compile Include="Interfaces\ITransactionManager.cs" />
     <Compile Include="Interfaces\IItemClickListener.cs" />
-    <Compile Include="Models\ToDoItem.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\AboutResources.txt" />
@@ -288,6 +282,8 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Dialogs\" />
+    <Folder Include="Events\" />
+    <Folder Include="Services\" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\layout\fragment_settings.xml" />
