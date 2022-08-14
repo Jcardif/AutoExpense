@@ -16,6 +16,7 @@ using AutoExpense.Android.Models;
 using Xamarin.Essentials;
 using static Android.Views.View;
 using AutoExpense.Android.Interfaces;
+using AutoExpense.Shared.Helpers;
 
 namespace AutoExpense.Android.Adapters
 {

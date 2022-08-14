@@ -30,22 +30,22 @@ namespace AutoExpense.Android.Models
         public List<string> Code { get; set; }
 
         [JsonProperty("amount")]
-        public List<string> Amount { get; set; }
+        public List<string>? Amount { get; set; }
 
         [JsonProperty("Principal")]
-        public List<string> Principal { get; set; }
+        public List<string>? Principal { get; set; }
 
         [JsonProperty("date")]
         public List<string> Date { get; set; }
 
         [JsonProperty("time")]
-        public List<string> Time { get; set; }
+        public List<string>? Time { get; set; }
 
         [JsonProperty("TransactionCost")]
-        public List<string> TransactionCost { get; set; }
+        public List<string>? TransactionCost { get; set; }
 
         [JsonProperty("$instance")]
-        public Instance Instance { get; set; }
+        public Instance? Instance { get; set; }
     }
 
     public partial class Instance

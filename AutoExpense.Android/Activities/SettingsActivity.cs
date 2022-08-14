@@ -67,9 +67,13 @@ namespace AutoExpense.Android.Activities
 
         private async void UseDefaultsButton_Click(object sender, System.EventArgs e)
         {
-            var firebaseDatabase = new FirebaseDatabaseService(Platform.AppContext);
-            var configs = await firebaseDatabase.GetItemsAsync<AppConfig>(LUIS_APP_CONFIG_CHILD_NAME);
-            AppConfig = configs.FirstOrDefault();
+            AppConfig = new AppConfig()
+            {
+                EndPointUrl = "https://luisexpense.cognitiveservices.azure.com/",
+                LuisAppId = "53db6e24-b41b-4d92-bbc4-e6f4dcc12062",
+                LuisSubscriptionKey = "1ea449f26bf743219c048a22427ea870",
+                YnabAccessToken = "34kKTX5dD8XvmGl1arLRAHE1G93pXr6OVxOgm4zCfkk"
+            };
 
             configDataForm.Commit();
             SaveData();

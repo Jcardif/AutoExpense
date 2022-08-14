@@ -8,15 +8,23 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using AutoExpense.Shared.Helpers;
+using AutoExpense.Shared.Interfaces;
+using Microsoft.WindowsAzure.MobileServices;
 
 namespace AutoExpense.Android.Models
 {
-    public class TPrediction
+    /// <summary>
+    /// The model that is for the Transaction pulled from the service.  This must
+    /// match what is coming from the service.
+    /// </summary>
+    public class SyncTransaction : ITransactionPrediction
     {
-        public TPrediction(string threadId, string id, long date, string messageSender, TransactionType? transactionType, double? amount, double? transactionCost, string code, string principal, YnabSyncStatus ynabSyncStatus)
+        public SyncTransaction(string threadId, long date, string messageSender, TransactionType? transactionType,
+            double? amount, double? transactionCost, string code, string principal, YnabSyncStatus ynabSyncStatus,
+            string messageHash)
         {
             ThreadId = threadId;
-            Id = id;
             Date = date;
             MessageSender = messageSender;
             TransactionType = transactionType;
@@ -24,16 +32,17 @@ namespace AutoExpense.Android.Models
             TransactionCost = transactionCost;
             Code = code;
             Principal = principal;
-            YnabSyncStatus = YnabSyncStatus;
+            YnabSyncStatus = ynabSyncStatus;
+            MessageHash = messageHash;
         }
 
-        public TPrediction()
+        public SyncTransaction()
         {
-            
+
         }
 
-        public string ThreadId { get; set; }
         public string Id { get; set; }
+        public string ThreadId { get; set; }
         public long Date { get; set; }
         public string MessageSender { get; set; }
         public TransactionType? TransactionType { get; set; }
@@ -42,12 +51,11 @@ namespace AutoExpense.Android.Models
         public string Code { get; set; }
         public string Principal { get; set; }
         public YnabSyncStatus YnabSyncStatus { get; set; }
-    }
+        public string MessageHash { get; set; }
 
-    public enum YnabSyncStatus
-    {
-        Skipped,
-        Synced,
-        NotSynced
+        [UpdatedAt] public DateTimeOffset? UpdatedAt { get; set; }
+
+        [Version] public string Version { get; set; }
+        [Deleted] public string Deleted { get; set; }
     }
 }
