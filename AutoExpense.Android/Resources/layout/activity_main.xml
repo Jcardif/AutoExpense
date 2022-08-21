@@ -314,7 +314,7 @@
 
 	<ProgressBar
 		android:id="@+id/syncing_progress_bar"
-		android:visibility="gone"
+		android:visibility="visible"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		app:layout_constraintStart_toStartOf="@id/controls_constraint_layout"
