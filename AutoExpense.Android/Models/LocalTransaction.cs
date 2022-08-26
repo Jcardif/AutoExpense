@@ -12,9 +12,9 @@ using AutoExpense.Shared.Helpers;
 
 namespace AutoExpense.Android.Models
 {
-    public class LocalTransaction 
+    public class LocalTransaction
     {
-        public LocalTransaction(string messageSender, long date, TransactionType? transactionType, double? amount, 
+        public LocalTransaction(string messageSender, long date, TransactionType? transactionType, double? amount,
             double? transactionCost, string code, string principal, string body, string threadId, string id,
             bool isSelected, bool isInDatabase, string messageHash)
         {

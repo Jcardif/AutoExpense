@@ -19,7 +19,7 @@
     <!-- Card radii-->
     <dimen name="card_corner_default">8dp</dimen>
     <dimen name="card_corner_large">16dp</dimen>
-    
+
     <!-- Margins & Padding -->
     <dimen name="margin_padding_size_micro">4dp</dimen>
     <dimen name="margin_padding_size_small">8dp</dimen>

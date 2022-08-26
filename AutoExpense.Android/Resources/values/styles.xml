@@ -1,16 +1,47 @@
 <resources>
 
-	<!-- Base application theme. -->
-	<style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
-		<!-- Customize your theme here. -->
-		<item name="colorPrimary">@color/colorPrimary</item>
-		<item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-		<item name="colorAccent">@color/colorAccent</item>
-	</style>
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/PrimaryLight</item>
+    </style>
 
-	<style name="ToolBarText" parent="Widget.MaterialComponents.TextView">
-		<item name="fontFamily">@font/poppins</item>
-		<item name="android:textSize">24sp</item>
-	</style>
+    <style name="LightHeading" parent="Widget.MaterialComponents.TextView">
+        <item name="fontFamily">@font/titillium_web_light</item>
+        <item name="android:textSize">20sp</item>
+    </style>
+
+    <style name="Body1" parent="Widget.MaterialComponents.TextView">
+        <item name="fontFamily">@font/titillium_web_semibold</item>
+        <item name="android:textSize">20sp</item>
+    </style>
+
+    <style name="Body2" parent="Widget.MaterialComponents.TextView">
+        <item name="fontFamily">@font/titillium_web</item>
+        <item name="android:textSize">15sp</item>
+    </style>
+
+    <style name="Light2" parent="Widget.MaterialComponents.TextView">
+        <item name="fontFamily">@font/titillium_web_light</item>
+        <item name="android:textSize">13sp</item>
+    </style>
+
+    <style name="Title" parent="Widget.MaterialComponents.TextView">
+        <item name="fontFamily">@font/titillium_web_semibold</item>
+        <item name="android:textSize">24sp</item>
+    </style>
+
+    <style name="inputEditText" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
+        <item name="android:letterSpacing">0.02</item>
+        <item name="android:padding">8dp</item>
+        <item name="android:color">@color/colorPrimary</item>
+        <item name="android:textSize">13sp</item>
+        <item name="boxCornerRadiusTopStart">5dp</item>
+        <item name="boxCornerRadiusTopEnd">5dp</item>
+        <item name="boxCornerRadiusBottomEnd">5dp</item>
+        <item name="boxCornerRadiusBottomStart">5dp</item>
+    </style>
 
 </resources>
