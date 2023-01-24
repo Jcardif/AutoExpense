@@ -9,10 +9,10 @@
     <Import_RootNamespace>AutoExpense.Shared</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Folder Include="$(MSBuildThisFileDirectory)Interfaces\" />
     <Folder Include="$(MSBuildThisFileDirectory)Models\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\EnumHelper.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Interfaces\ITransactionPrediction.cs" />
   </ItemGroup>
 </Project>

@@ -1,16 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<color name="colorPrimary">#7569FF</color>
-	<color name="colorPrimaryDark">#2E3148</color>
-	<color name="colorAccent">#ac97ff</color>
-
-	<color name="colorSecondary">#D869FF</color>
-	<color name="colorGreen">#82F080</color>
-	<color name="colorPink">#EB789C</color>
-	<color name="colorCardBackGround">#1B1D2F</color>
-	<color name="colorMainBackGround">#2E3148</color>
-
-	<color name="colorGray">#60708F</color>
-	<color name="colorWhiteGray">#B1BED8</color>
-
+    <color name="AppBackground">#E8ECEF</color>
+    <color name="colorPrimary">#673AB7</color>
+    <color name="SecondaryColor">#B7973A</color>
+    <color name="PrimaryLight">#BBAFFF</color>
+    <color name="SecondaryDark">#806A29</color>
+    <color name="colorPrimaryDark">#320b86</color>
+    <color name="Gray6">#F2F2F2</color>
+    <color name="Gray5">#E0E0E0</color>
+    <color name="Gray2">#4F4F4F</color>
+	<color name="colorGreen">#455a1d</color>
+	<color name="colorPink">#b73a80</color>
 </resources>

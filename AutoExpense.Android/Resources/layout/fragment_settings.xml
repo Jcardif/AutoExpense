@@ -5,7 +5,21 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorMainBackGround">
+    android:background="@color/AppBackground">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/settings_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        android:background="@color/PrimaryLight"
+        android:minHeight="?attr/actionBarSize"
+        app:layout_constraintTop_toTopOf="parent"
+        app:titleTextColor="@color/colorPrimary"
+        app:title="Settings"
+        app:titleTextAppearance="@style/Title"
+        app:subtitleTextColor="@android:color/white"
+        android:paddingLeft="@dimen/margin_padding_size_medium"/>
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/left_guideline"
@@ -21,90 +35,221 @@
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.95"/>
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/top_guideline"
+    <TextView
+        android:id="@+id/textView"
+        style="@style/Body1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.025"/>
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:background="@drawable/ic_stripes_background"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintHeight_percent=".6"/>
+        android:text="Recent Transactions"
+        android:textColor="@color/SecondaryColor"
+        app:layout_constraintStart_toStartOf="@id/left_guideline"
+        app:layout_constraintTop_toBottomOf="@id/settings_toolbar"
+        android:layout_marginTop="@dimen/margin_padding_size_medium"/>
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/settings_toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
-        android:background="@android:color/transparent"
-        android:minHeight="?attr/actionBarSize"
-        app:layout_constraintTop_toTopOf="parent"
-        app:titleTextColor="@android:color/white"
-        app:title="Settings"
-        app:titleTextAppearance="@style/ToolBarText"
-        app:subtitleTextColor="@android:color/white"
-        android:paddingLeft="@dimen/margin_padding_size_medium"/>
+    <ImageView
+        android:id="@+id/edit_luis_settings_imageview"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/ic_edit"
+        app:layout_constraintEnd_toStartOf="@+id/right_guideline"
+        app:layout_constraintTop_toTopOf="@+id/textView" />
 
-    <androidx.cardview.widget.CardView
-        android:id="@+id/status_cardView"
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/subscription_key_inputLayout"
+        style="@style/inputEditText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:backgroundTint="@color/colorCardBackGround"
-        app:layout_constraintLeft_toRightOf="@id/left_guideline"
-        app:layout_constraintRight_toLeftOf="@id/right_guideline"
-        app:layout_constraintTop_toBottomOf="@id/settings_toolbar"
-        app:cardCornerRadius="@dimen/card_corner_default">
-        <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_marginTop="@dimen/margin_padding_size_medium"
+        android:importantForAutofill="noExcludeDescendants"
+        app:layout_constraintEnd_toStartOf="@+id/right_guideline"
+        app:layout_constraintStart_toStartOf="@+id/left_guideline"
+        app:layout_constraintTop_toBottomOf="@+id/textView">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/subscription_key_editText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="@dimen/margin_padding_size_medium"
-            android:paddingBottom="@dimen/margin_padding_size_medium">
-            <Syncfusion.Android.DataForm.SfDataForm
-                android:id="@+id/sf_data_form"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"/>
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </androidx.cardview.widget.CardView>
+            android:hint="Subscription Key"
+            android:textColor="@color/colorPrimary"
+            style="@style/Body2"
+            android:inputType="textCapWords"
+            android:padding="@dimen/margin_padding_size_micro" />
+    </com.google.android.material.textfield.TextInputLayout>
 
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/app_id_inputLayout"
+        style="@style/inputEditText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/margin_padding_size_small"
+        android:importantForAutofill="noExcludeDescendants"
+        app:layout_constraintEnd_toStartOf="@+id/right_guideline"
+        app:layout_constraintStart_toStartOf="@+id/left_guideline"
+        app:layout_constraintTop_toBottomOf="@+id/subscription_key_inputLayout">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/app_id_editText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Subscription Key"
+            style="@style/Body2"
+            android:textColor="@color/colorPrimary"
+            android:inputType="textCapWords"
+            android:padding="@dimen/margin_padding_size_micro"  />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/endpoint_url_inputLayout"
+        style="@style/inputEditText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/margin_padding_size_small"
+        android:importantForAutofill="noExcludeDescendants"
+        app:layout_constraintEnd_toStartOf="@+id/right_guideline"
+        app:layout_constraintStart_toStartOf="@+id/left_guideline"
+        app:layout_constraintTop_toBottomOf="@+id/app_id_inputLayout">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/endpoint_url_editText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Subscription Key"
+            android:inputType="textCapWords"
+            android:textColor="@color/colorPrimary"
+            style="@style/Body2"
+            android:padding="@dimen/margin_padding_size_micro" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <TextView
+        android:id="@+id/textView2"
+        style="@style/Body1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="YNAB Settings"
+        android:textColor="@color/SecondaryColor"
+        app:layout_constraintStart_toStartOf="@id/left_guideline"
+        app:layout_constraintTop_toBottomOf="@id/endpoint_url_inputLayout"
+        android:layout_marginTop="@dimen/margin_padding_size_medium"/>
+
+    <ImageView
+        android:id="@+id/edit_ynab_settings_imageview"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/ic_edit"
+        app:layout_constraintEnd_toStartOf="@+id/right_guideline"
+        app:layout_constraintTop_toTopOf="@+id/textView2" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/ynab_access_token_inputLayout"
+        style="@style/inputEditText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/margin_padding_size_small"
+        android:importantForAutofill="noExcludeDescendants"
+        app:layout_constraintEnd_toStartOf="@+id/right_guideline"
+        app:layout_constraintStart_toStartOf="@+id/left_guideline"
+        app:layout_constraintTop_toBottomOf="@+id/textView2">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/ynab_acces_token_editText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Access Token"
+            android:textColor="@color/colorPrimary"
+            style="@style/Body2"
+            android:inputType="textCapWords"
+            android:padding="@dimen/margin_padding_size_micro" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <TextView
+        android:id="@+id/textView3"
+        style="@style/Body2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Save to YNAB"
+        android:textColor="@android:color/black"
+        app:layout_constraintStart_toStartOf="@id/left_guideline"
+        app:layout_constraintTop_toBottomOf="@id/ynab_access_token_inputLayout"
+        android:layout_marginTop="@dimen/margin_padding_size_medium"/>
+
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/save_to_ynab_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checked="true"
+        app:layout_constraintBottom_toBottomOf="@+id/textView3"
+        app:layout_constraintEnd_toStartOf="@+id/right_guideline"
+        app:layout_constraintTop_toTopOf="@+id/textView3" />
+
+    <TextView
+        android:id="@+id/textView4"
+        style="@style/Body1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="YNAB Budgets"
+        android:textColor="@color/SecondaryColor"
+        app:layout_constraintStart_toStartOf="@id/left_guideline"
+        app:layout_constraintTop_toBottomOf="@id/textView3"
+        android:layout_marginTop="@dimen/margin_padding_size_medium"/>
+
+    <RadioGroup
+        android:id="@+id/ynab_budgets_radio_group"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toStartOf="@+id/right_guideline"
+        app:layout_constraintStart_toStartOf="@+id/left_guideline"
+        app:layout_constraintTop_toBottomOf="@+id/textView4"
+        android:layout_marginTop="@dimen/margin_padding_size_medium">
+
+        <RadioButton
+            android:id="@+id/radio_pirates"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="onRadioButtonClicked"
+            android:text="Pirates"
+            style="@style/Body2"/>
+
+        <RadioButton
+            android:id="@+id/radio_ninjas"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="onRadioButtonClicked"
+            android:text="Ninjas"
+            style="@style/Body2"/>
+    </RadioGroup>
 
     <Button
-        android:id="@+id/save_settings_button"
+        android:id="@+id/use_defaults_button"
+        style="@style/Body1"
         android:layout_width="0dp"
-        android:layout_height="50dp"
-        android:text="Save Settings"
-        android:background="@drawable/primary_color_button_round"
-        app:layout_constraintTop_toBottomOf="@id/status_cardView"
-        app:layout_constraintLeft_toRightOf="@id/left_guideline"
-        app:layout_constraintRight_toLeftOf="@id/right_guideline"
-        android:layout_margin="@dimen/margin_padding_size_large"
-        android:textColor="@android:color/white"
-        android:textSize="@dimen/margin_padding_size_medium"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/margin_padding_size_medium"
+        android:layout_marginRight="@dimen/margin_padding_size_medium"
+        android:background="@drawable/default_rounded_button"
         android:gravity="center"
-        android:fontFamily="@font/poppins"/>
-
-
-       <Button
-        android:id="@+id/use_default_button"
-        android:layout_width="0dp"
-        android:layout_height="50dp"
+        android:padding="@dimen/margin_padding_size_small"
         android:text="Use Defaults"
-        android:background="@drawable/primary_color_button_round"
-        app:layout_constraintTop_toBottomOf="@id/save_settings_button"
-        app:layout_constraintLeft_toRightOf="@id/left_guideline"
-        app:layout_constraintRight_toLeftOf="@id/right_guideline"
-        android:layout_margin="@dimen/margin_padding_size_large"
         android:textColor="@android:color/white"
-        android:textSize="@dimen/margin_padding_size_medium"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/save_button"
+        app:layout_constraintStart_toStartOf="@id/left_guideline"
+        app:layout_constraintTop_toBottomOf="@+id/ynab_budgets_radio_group" />
+
+    <Button
+        android:id="@+id/save_button"
+        style="@style/Body1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/margin_padding_size_medium"
+        android:background="@drawable/default_rounded_button"
         android:gravity="center"
-        android:fontFamily="@font/poppins"/>
-
-
-
+        android:padding="@dimen/margin_padding_size_small"
+        android:text="Save"
+        android:textColor="@android:color/white"
+        app:layout_constraintEnd_toEndOf="@id/right_guideline"
+        app:layout_constraintStart_toEndOf="@id/use_defaults_button"
+        app:layout_constraintTop_toTopOf="@+id/use_defaults_button" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

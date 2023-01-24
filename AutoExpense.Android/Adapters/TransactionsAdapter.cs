@@ -17,6 +17,7 @@ using Xamarin.Essentials;
 using static Android.Views.View;
 using AutoExpense.Android.Interfaces;
 using AutoExpense.Shared.Helpers;
+using static Android.Widget.AdapterView;
 
 namespace AutoExpense.Android.Adapters
 {
@@ -47,14 +48,14 @@ namespace AutoExpense.Android.Adapters
                     vh.SelectedViewIndicator.Visibility = ViewStates.Gone;
                 }
 
-                if (_transactions[position].TransactionType==TransactionType.Fuliza || _transactions[position].TransactionType == TransactionType.CashOutflow)
+                if (_transactions[position].TransactionType == TransactionType.Fuliza || _transactions[position].TransactionType == TransactionType.CashOutflow)
                 {
                     vh.AmountTextView.Text = $"- Ksh {_transactions[position].Amount}";
                     vh.AmountTextView.Visibility = ViewStates.Visible;
                     vh.AmountTextView.SetTextColor(new Color(ContextCompat.GetColor(Platform.AppContext, Resource.Color.colorPink)));
                     vh.SyncProblem.Visibility = ViewStates.Invisible;
                 }
-                else if (_transactions[position].TransactionType==TransactionType.CashInflow)
+                else if (_transactions[position].TransactionType == TransactionType.CashInflow)
                 {
                     vh.AmountTextView.Text = $"Ksh {_transactions[position].Amount}";
                     vh.AmountTextView.Visibility = ViewStates.Visible;

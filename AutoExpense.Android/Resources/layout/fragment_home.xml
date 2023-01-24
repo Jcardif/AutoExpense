@@ -1,0 +1,284 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/AppBackground">
+
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/left_guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.05"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/right_guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.95"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/top_guideline"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.025"/>
+
+    <ImageView
+        android:id="@+id/profile_pic_imageView"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:src="@drawable/default_user"
+        android:background="@drawable/rounded_corner_image"
+        android:clipToOutline="true"
+        app:layout_constraintTop_toBottomOf="@id/top_guideline"
+        app:layout_constraintLeft_toRightOf="@id/left_guideline"
+        android:scaleType="centerCrop"/>
+
+    <TextView
+        android:id="@+id/time_of_day_textView"
+        style="@style/LightHeading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/colorPrimary"
+        app:layout_constraintStart_toEndOf="@+id/profile_pic_imageView"
+        app:layout_constraintTop_toTopOf="@+id/top_guideline"
+        tools:text="Good Morning,"
+        android:layout_marginLeft="@dimen/margin_padding_size_small"/>
+
+    <TextView
+        android:id="@+id/name_textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="Josh N."
+        style="@style/Body1"
+        android:textColor="@color/SecondaryColor"
+        app:layout_constraintLeft_toLeftOf="@id/time_of_day_textView"
+        app:layout_constraintTop_toBottomOf="@id/time_of_day_textView" />
+
+    <ImageView
+        android:id="@+id/settings_imageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_settings"
+        app:layout_constraintEnd_toEndOf="@id/right_guideline"
+        app:layout_constraintTop_toTopOf="@+id/top_guideline" />
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/status_cardView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/profile_pic_imageView"
+        android:backgroundTint="@color/Gray6"
+        app:cardCornerRadius="@dimen/card_corner_default"
+        app:layout_constraintLeft_toRightOf="@id/left_guideline"
+        app:layout_constraintRight_toLeftOf="@id/right_guideline"
+        android:layout_marginTop="@dimen/margin_padding_size_medium">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="@dimen/margin_padding_size_small">
+
+            <TextView
+                android:id="@+id/total_messages_textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="342"
+                android:fontFamily="@font/titillium_web_semibold"
+                android:textSize="32sp"
+                android:textColor="@color/colorPrimary"/>
+
+            <TextView
+                style="@style/Light2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Total Transactions"
+                android:textColor="@android:color/black"
+                app:layout_constraintBottom_toBottomOf="@+id/total_messages_textView"
+                app:layout_constraintStart_toEndOf="@+id/total_messages_textView"
+                android:layout_marginLeft="@dimen/margin_padding_size_medium"/>
+
+            <TextView
+                android:id="@+id/synced_messages_textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/titillium_web_semibold"
+                android:textColor="@color/colorPrimary"
+                android:textSize="32sp"
+                app:layout_constraintTop_toBottomOf="@+id/total_messages_textView"
+                app:layout_constraintStart_toStartOf="parent"
+                tools:text="150"
+                android:layout_marginTop="@dimen/margin_padding_size_medium"/>
+
+            <TextView
+                style="@style/Light2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Synced Transactions"
+                android:textColor="@android:color/black"
+                app:layout_constraintBottom_toBottomOf="@+id/synced_messages_textView"
+                app:layout_constraintStart_toEndOf="@+id/synced_messages_textView"
+                android:layout_marginLeft="@dimen/margin_padding_size_medium"/>
+
+            <Button
+                android:id="@+id/sync_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:padding="@dimen/margin_padding_size_small"
+                android:layout_marginRight="@dimen/margin_padding_size_medium"
+                app:layout_constraintTop_toBottomOf="@+id/synced_messages_textView"
+                android:text="Sync"
+                android:textColor="@color/SecondaryDark"
+                style="@style/Body1"
+                android:layout_marginTop="@dimen/margin_padding_size_medium"
+                android:background="@drawable/button_round_corner_primary_stroke"
+                app:layout_constraintStart_toStartOf="@id/synced_messages_textView"
+                app:layout_constraintEnd_toStartOf="@id/senders_button" 
+                app:backgroundTint="@null"/>
+            <Button
+                android:id="@+id/senders_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/margin_padding_size_small"
+                android:layout_marginLeft="@dimen/margin_padding_size_medium"
+                android:gravity="center"
+                app:layout_constraintTop_toBottomOf="@+id/synced_messages_textView"
+                android:text="Senders"
+                android:textColor="@color/SecondaryDark"
+                style="@style/Body1"
+                android:layout_marginTop="@dimen/margin_padding_size_medium"
+                android:background="@drawable/button_round_corner_primary_stroke"
+                app:layout_constraintStart_toEndOf="@id/sync_button"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:backgroundTint="@null"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/ynab_card"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        app:layout_constraintStart_toStartOf="@id/status_cardView"
+        app:layout_constraintTop_toBottomOf="@id/status_cardView"
+        android:layout_marginTop="@dimen/margin_padding_size_medium"
+        android:backgroundTint="@color/Gray6"
+        app:cardCornerRadius="@dimen/card_corner_default"
+        android:layout_marginRight="@dimen/margin_padding_size_medium">
+        <LinearLayout
+            android:layout_margin="@dimen/margin_padding_size_small"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:orientation="vertical"
+            android:layout_gravity="center">
+            <ImageView
+                android:layout_gravity="center"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/ic_ynab"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="YNAB"
+                android:layout_gravity="center"
+                style="@style/Body2"
+                android:textColor="@android:color/black"/>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/add_new_card"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        app:layout_constraintStart_toEndOf="@id/ynab_card"
+        app:layout_constraintTop_toTopOf="@id/ynab_card"
+        android:backgroundTint="@color/Gray6"
+        app:cardCornerRadius="@dimen/card_corner_default"
+        android:layout_marginLeft="@dimen/margin_padding_size_medium">
+        <LinearLayout
+            android:layout_margin="@dimen/margin_padding_size_small"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:orientation="vertical"
+            android:layout_gravity="center">
+            <ImageView
+                android:layout_gravity="center"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/ic_add_new"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Add New"
+                android:layout_gravity="center"
+                style="@style/Body2"
+                android:textColor="@android:color/black"/>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <ProgressBar
+        android:id="@+id/syncing_progress_bar"
+        android:visibility="gone"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="@id/left_guideline"
+        app:layout_constraintEnd_toEndOf="@id/right_guideline"
+        app:layout_constraintTop_toBottomOf="@id/ynab_card"
+        android:indeterminate="true"
+        android:layout_marginTop="@dimen/margin_padding_size_medium"
+        style="?android:attr/progressBarStyleHorizontal"/>
+
+    <TextView
+        android:id="@+id/textView"
+        style="@style/Body1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Recent Transactions"
+        android:textColor="@color/SecondaryColor"
+        app:layout_constraintStart_toStartOf="@id/left_guideline"
+        app:layout_constraintTop_toBottomOf="@id/syncing_progress_bar" />
+
+    <ImageView
+        android:id="@+id/sort_imageView"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/ic_sort"
+        app:layout_constraintBottom_toBottomOf="@+id/textView"
+        app:layout_constraintEnd_toEndOf="@id/right_guideline"
+        app:layout_constraintTop_toTopOf="@+id/textView" />
+
+    <ImageView
+        android:id="@+id/delete_imageView"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/ic_delete"
+        app:layout_constraintEnd_toStartOf="@+id/sort_imageView"
+        app:layout_constraintTop_toTopOf="@id/sort_imageView"
+        android:layout_marginRight="@dimen/margin_padding_size_large"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/transactions_recyclerView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/textView"
+        app:layout_constraintStart_toEndOf="@id/left_guideline"
+        app:layout_constraintEnd_toEndOf="@id/right_guideline"
+        tools:itemCount="10"
+        tools:listitem="@layout/item_transaction"
+        android:orientation="vertical"
+        android:overScrollMode="ifContentScrolls"
+        android:scrollbars="vertical"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
